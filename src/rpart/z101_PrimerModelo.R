@@ -7,7 +7,7 @@ require("rpart")
 require("rpart.plot")
 
 # Aqui se debe poner la carpeta de la materia de SU computadora local
-setwd("~/buckets/b1") # Establezco el Working Directory
+setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas") # Establezco el Working Directory
 
 # cargo el dataset que tiene la clase calculada !
 dataset <- fread("./datasets/competencia_01.csv")
