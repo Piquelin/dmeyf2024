@@ -21,8 +21,8 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree,  _tree
 resultado = pl.read_parquet('resultado_con_clase.parquet')
 tabla_202104 = resultado.filter(pl.col("foto_mes") <= 202104)
 
-# Suponiendo que tienes un DataFrame llamado df
-# Primero define los sufijos
+#%% uno los datos de tarjetas
+
 suffixes = [
     '_delinquency', '_status', '_mfinanciacion_limite', '_Fvencimiento',
     '_Finiciomora', '_msaldototal', '_msaldopesos', '_msaldodolares',
@@ -78,7 +78,7 @@ plot_tree(model, feature_names=X.columns, filled=True,
           impurity=True, fontsize=8,  proportion=False,
           node_ids=True, )
 plt.show()
-     
+
 
 #%%
 
@@ -129,9 +129,9 @@ def calcular_ganancia_polars(model):
 
     # Mostrar el DataFrame para los nodos hoja
     df_hojas = df_nodos.filter(pl.col('Nodo').is_in(leaf_indices))
-    
+
     df_resultado = df_hojas.select(['Otros', 'BAJA+2', 'ganancia', 'prob_+2']).sort('prob_+2', descending=True)
-    
+
     with pl.Config(
     tbl_cell_numeric_alignment="RIGHT",
     thousands_separator=True,
@@ -155,11 +155,23 @@ tabla_202106 = tabla_202106.to_pandas()
 pred = tabla_202106['ctrx_quarter'] <= 3.5
 tabla_202106['Predicted'] = pred.astype(int)
 
-tabla_202106[['numero_de_cliente', 'Predicted']].to_csv('pred.csv', index=False)
-tabla_202106['Predicted'] = 1
-tabla_202106[['numero_de_cliente', 'Predicted']].to_csv('todo_uno.csv', index=False)
-tabla_202106['Predicted'] = 0
-tabla_202106[['numero_de_cliente', 'Predicted']].to_csv('todo_cero.csv', index=False)
+
+#%%
+
+Predicted = model.predict_proba(Xa, )
+
+plot_histogram_with_bin_width(Predicted[:, 1], y_max=40000, x_max=0.1, last_n_cases=10000, bin_width=0.001)
+
+por_proba = Predicted[:,1]>1/40
+#%%
+
+entrega = pd.DataFrame([Xa.numero_de_cliente, por_proba]).T
+entrega.columns=['numero_de_cliente', 'Predicted']
+print(entrega.Predicted.value_counts())
+entrega['Predicted'] = entrega['Predicted'].astype(int)
+print(entrega.Predicted.value_counts())
+entrega[['numero_de_cliente', 'Predicted']].to_csv('./pred.csv', index=False)
+
 
 #%%
 
@@ -182,6 +194,50 @@ model.fit(total_df, y)
 
 #%%
 
+
+def plot_histogram_with_bin_width(Predicted, y_max=40000, x_max=0.4, last_n_cases=10000, bin_width=0.001):
+    """
+    Genera un histograma de las probabilidades con un ancho de bin específico, límites en los ejes, y una línea vertical que marca
+    el valor de x correspondiente a los últimos n casos. La escala del eje x es logarítmica.
+
+    Parameters:
+    - Predicted: Array de probabilidades predichas (ej. Predicted[:, 1]).
+    - y_max: Límite máximo del eje Y (default: 40000).
+    - x_max: Límite máximo del eje X (default: 0.4).
+    - last_n_cases: Número de últimos casos para marcar en el histograma (default: 10000).
+    - bin_width: Ancho de cada bin en el histograma (default: 0.001).
+    """
+    # Definir los bordes de los bins basados en el ancho especificado
+    bins = np.arange(0, x_max + bin_width, bin_width)
+
+    plt.figure(figsize=(10, 6))
+    ax = plt.hist(Predicted, bins=bins, color='skyblue', edgecolor='black')
+
+    # Establecer los límites en los ejes
+    plt.ylim(0, y_max)  # Límite máximo en el eje Y
+    plt.xlim(left=1e-4, right=x_max)  # Límite máximo en el eje X
+
+    # Establecer la escala logarítmica en el eje X
+
+    # Calcular el valor de x para los últimos n casos
+    cumsum = np.cumsum(ax[0][::-1])  # Acumulado desde la derecha
+    x_value = ax[1][::-1][np.argmax(cumsum > last_n_cases)]  # Valor de x
+
+    # Dibujar una línea vertical en el valor de x correspondiente
+    plt.axvline(x=x_value, color='red', linestyle='--', label=f'Últimos {last_n_cases} casos en x = {x_value:.4f}')
+
+    plt.axvline(x=1/40, color='blue', linestyle='--', label=f'x = {1/40:.4f}')
+    # Añadir una etiqueta a la línea
+    plt.text(x_value * 1.1, y_max * 0.5, f'x = {x_value:.4f}', rotation=90, verticalalignment='center')
+
+    # Añadir títulos y etiquetas
+    plt.title('Distribución de Predicted[:, 1]')
+    plt.xlabel('Probabilidad (Escala Logarítmica)')
+    plt.ylabel('Frecuencia')
+    plt.legend()
+
+    # Mostrar el gráfico
+    plt.show()
 
 
 #%%
