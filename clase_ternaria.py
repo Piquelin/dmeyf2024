@@ -14,7 +14,7 @@ dataset = pl.read_csv("competencia_01_crudo.csv", infer_schema_length=10000)
 #%% pivoteo
 
 # pivoteo con las fechas para compara los meses. tomo el valor de active _quarter para simplificar los reemplazos
-tabla = dataset[['numero_de_cliente', 'foto_mes', 'active_quarter']].pivot(columns='foto_mes', index='numero_de_cliente', values='active_quarter')
+tabla = dataset[['numero_de_cliente', 'foto_mes', 'active_quarter']].pivot(on='foto_mes', index='numero_de_cliente', values='active_quarter')
 
 
 # Reemplazar valores nulos por False y valores enteros por True
@@ -36,17 +36,18 @@ def evaluar_condiciones(tabla: pl.DataFrame, col1: str, col2: str, col3: str) ->
         pl.when(pl.col(col1) == False)
         .then(None)
         .when(
-            (pl.col(col1) == True) & (pl.col(col2) == True) & (pl.col(col3) == True)
+            (pl.col(col2) == False)
+        )
+        .then(pl.lit("BAJA+1"))
+        .when(
+            (pl.col(col3) == True)
         )
         .then(pl.lit("CONTINUA"))
         .when(
-            (pl.col(col1) == True) & (pl.col(col2) == True) & (pl.col(col3) == False)
+            (pl.col(col3) == False)
         )
         .then(pl.lit("BAJA+2"))
-        .when(
-            (pl.col(col1) == True) & (pl.col(col2) == False) 
-        )
-        .then(pl.lit("BAJA+1"))
+
         .otherwise(None)
     )
 
@@ -75,9 +76,12 @@ clase_cliente = clase_cliente.with_columns(pl.col("foto_mes").str.slice(-6).cast
 resultado = dataset.join(
     clase_cliente,
     on=["numero_de_cliente", "foto_mes"],
-    how="left"  
+    how="left"
 )
 
 # guardo
 resultado.write_csv("resultado_con_clase.csv", separator=",")
 resultado.write_parquet("resultado_con_clase.parquet")
+
+for ev_mes in tabla_bool.columns[-4:]:
+    print(tabla_bool[ev_mes].value_counts())
