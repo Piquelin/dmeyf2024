@@ -252,38 +252,78 @@ chequeo = chequeo_gt(por_proba, test_clase)
 
 #%%
 
-def metrica_ganancia(estimator, X, y):
-    # Predecir las probabilidades usando el estimador proporcionado
-    Predicted = estimator.predict_proba(X)
-    
-    # Definir la condición basada en la probabilidad
-    por_proba = Predicted[:, 1] > 1/40
-    
-    # Verificar si la clase real es 'BAJA+2'
-    test_clase = y == 'BAJA+2'
-    
-    # Crear DataFrame con Polars
-    df = pl.DataFrame({
-        "por_proba": por_proba,
-        "test_clase": test_clase
-    })
-    
-    # Calcular la ganancia usando condiciones
-    df = df.with_columns(
-        pl.when((pl.col("por_proba") == True) & (pl.col("test_clase") == True))
-          .then(273000)
-          .when((pl.col("por_proba") == True) & (pl.col("test_clase") == False))
-          .then(-7000)
-          .otherwise(0)
-          .alias("resultado")
-    )
-    
-    # Sumar el resultado
-    suma_resultado = df.select(pl.col("resultado").sum()).item()
-    
-    return suma_resultado
+import numpy as np
 
-#%%
+def metrica_ganancia(estimator, X, y, ganancia_positiva=273000, perdida=7000, verbose=1):
+    """
+    Calcula la ganancia total basada en predicciones de probabilidad.
+
+    Args:
+        estimator: El estimador a evaluar.
+        X: Datos de entrada.
+        y: Datos de salida (verdaderos).
+        ganancia_positiva: Ganancia por una predicción positiva correcta.
+        perdida: Pérdida por una predicción positiva incorrecta.
+
+    Returns:
+        float: Ganancia total.
+    """
+
+    probabilidades = estimator.predict_proba(X)[:, 1]
+    predicciones = probabilidades > 1/40
+    aciertos = predicciones == (y == 'BAJA+2')
+
+    # Ajustamos la condición para considerar falsos positivos
+    ganancias = np.where(aciertos, ganancia_positiva, -perdida * (predicciones == True))
+
+    return ganancias.sum()
+
+
+# %% GridSearchCV
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
+
+# ... (resto de tu código)
+
+# Crear el modelo base
+base_model = DecisionTreeClassifier(random_state=17)
+
+# Definir el espacio de parámetros (ajusta según tus necesidades)
+param_grid = {
+    'criterion': ['gini'],
+    'min_samples_split': [1000, 800],
+    'min_samples_leaf': [100, 400],
+    }
+
+param_dist = {
+    'criterion': ['gini'],
+    'min_samples_split': np.arange(200, 1000, 100),
+    'min_samples_leaf': np.arange(50, 400, 50),
+    'max_leaf_nodes': np.arange(10, 20, 1),
+    'max_depth': np.arange(5, 15, 1)    
+}
+
+
+
+# Realizar la búsqueda de hiperparámetros
+grid_search = GridSearchCV(estimator=base_model,
+                          param_grid=param_grid,
+                          scoring=metrica_ganancia,  # Asegúrate de que metrica_ganancia esté definida correctamente
+                          cv=2)
+
+grid_search.fit(X_train, y_train)
+
+# Obtener los mejores resultados
+best_params = grid_search.best_params_
+best_score = grid_search.best_score_
+
+print("Mejores parámetros:", best_params)
+print("Mejor ganancia:", best_score)
+
+# %%
+
+
 
 # Hiperparámetros a buscar
 
@@ -298,6 +338,8 @@ param_dist = {
 param_list = list(ParameterSampler(param_distributions=param_dist, n_iter=50, random_state=42))
 #%%
 from sklearn.tree import DecisionTreeClassifier
+
+
 
 # Lista para almacenar los resultados
 resultados = []

@@ -5,19 +5,22 @@ require("data.table")
 require("rpart")
 require("parallel")
 require("primes")
+require("ggplot2")
 
-# 799891, 799921, 799961, 799991, 800011
+# Carga el paquete
+library(pbmcapply)
+
 
 PARAM <- list()
 # reemplazar por las propias semillas
 PARAM$semilla_primigenia <- 799891
-PARAM$qsemillas <- 50
+PARAM$qsemillas <- 10000
 
 # dataset
 PARAM$dataset_nom <- "./datasets/competencia_01.csv"
 
-
 PARAM$training_pct <- 70L  # entre  1L y 99L 
+
 
 PARAM$rpart <- list (
   "cp" = -1, # complejidad minima
@@ -72,11 +75,11 @@ ArbolEstimarGanancia <- function(semilla, param_basicos) {
   # cada columna es el vector de probabilidades
 
 
-  # calculo la ganancia en testing que es fold==2
+  # calculo la ganancia en testing  qu es fold==2
   ganancia_test <- dataset[
     fold == 2,
     sum(ifelse(prediccion[, "BAJA+2"] > 0.025,
-      ifelse(clase_ternaria == "BAJA+2", 273000, -7000),
+      ifelse(clase_ternaria == "BAJA+2", 273000, -3000),
       0
     ))
   ]
@@ -116,15 +119,34 @@ dataset <- fread(PARAM$dataset_nom)
 # trabajo, por ahora, solo con 202104
 dataset <- dataset[foto_mes==202104]
 
+dir.create("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/EX2330u", showWarnings = FALSE)
+setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/EX2330u")
+
 
 # la funcion mcmapply  llama a la funcion ArbolEstimarGanancia
 #  tantas veces como valores tenga el vector  PARAM$semillas
-salidas <- mcmapply(ArbolEstimarGanancia,
-  PARAM$semillas, # paso el vector de semillas
-  MoreArgs = list(PARAM), # aqui paso el segundo parametro
-  SIMPLIFY = FALSE,
-  mc.cores = 1 #detectCores()
-)
+#salidas <- mcmapply(ArbolEstimarGanancia,
+#  PARAM$semillas, # paso el vector de semillas
+#  MoreArgs = list(PARAM), # aqui paso el segundo parametro
+#  SIMPLIFY = FALSE,
+#  mc.cores = 1 # detectCores()
+#)
+
+
+# Medir el tiempo de ejecución
+tiempo_ejecucion <- system.time({
+  # Uso de pbmcmapply en lugar de mcmapply para agregar barra de progreso
+  salidas <- pbmcmapply(ArbolEstimarGanancia,
+                        PARAM$semillas, # paso el vector de semillas
+                        MoreArgs = list(PARAM), # aqui paso el segundo parametro
+                        SIMPLIFY = FALSE,
+                        mc.cores = 1 #detectCores()
+  )
+})
+
+# Mostrar el tiempo de ejecución
+print(tiempo_ejecucion)
+
 
 # muestro la lista de las salidas en testing
 #  para la particion realizada con cada semilla
@@ -133,10 +155,51 @@ salidas
 # paso la lista a vector
 tb_salida <- rbindlist(salidas)
 
+fwrite( tb_salida,
+        "tb_salida.txt",
+        sep ="\t" )
 
-for( i in seq(10, 50, 10) )
+
+
+# grafico densidades
+media <- tb_salida[ , mean( ganancia_test) ]
+cuantiles  <-  quantile(  tb_salida[,  ganancia_test ],
+   prob= c(0.05, 0.5, 0.95),
+   na.rm=TRUE )
+
+grafico <- ggplot( tb_salida, aes(x=ganancia_test)) + geom_density(alpha=0.25)  +
+  geom_vline(xintercept=media, linewidth=1, color="red") +
+  geom_vline(xintercept=cuantiles[1], linewidth=0.5, color="blue") +
+  geom_vline(xintercept=cuantiles[2], linewidth=0.5, color="blue") +
+  geom_vline(xintercept=cuantiles[3], linewidth=0.5, color="blue")
+
+pdf("densidad.pdf")
+print(grafico)
+dev.off()
+
+# desvios estandar
+tb_final <- data.table(
+    grupo_size=integer(),
+    grupos=integer(),
+    gan_media=numeric(),
+    gan_sd=numeric()
+)
+
+cant <-  nrow( tb_salida )
+for( q in  c(1,2,4, 8, 16, 32, 64, 128 ) )
 {
-  cat( i, "\t", tb_salida[ 1:i, mean(ganancia_test)], "\n" )
+  i <- 1
+  grupos <- 0
+  vgan <- c()
+  while(  i+q-1 <= cant )
+  {
+    gan <- tb_salida[ i:(i+q-1) , mean( ganancia_test) ]
+    vgan <-  c( vgan, gan )
+    i <- i + q
+    grupos <-  grupos + 1
+  }
+  
+  tb_final <- rbindlist( list( tb_final, list( q, grupos, mean(vgan), sd(vgan) ) ) )
 }
 
-cat( "desvio : " , tb_salida[ , sd(ganancia_test) ], "\n" )
+print( tb_final )
