@@ -53,8 +53,8 @@ graficar_campo <- function(campo) {
 #------------------------------------------------------------------------------
 
 # Aqui comienza el programa
-setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas")
-
+# setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas")
+setwd('E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas')
 
 # cargo dataset
 dataset <- fread( "./datasets/competencia_01.csv" )
