@@ -12,7 +12,7 @@ setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas") # 
 # cargo el dataset que tiene la clase calculada !
 dataset <- fread("./datasets/competencia_01.csv")
 
-dtrain <- dataset[foto_mes <= 202104] # defino donde voy a entrenar
+dtrain <- dataset[foto_mes == 202104] # defino donde voy a entrenar
 dapply <- dataset[foto_mes == 202106] # defino donde voy a aplicar el modelo
 
 # genero el modelo,  aqui se construye el arbol
@@ -21,9 +21,9 @@ modelo <- rpart(
     formula = "clase_ternaria ~ .",
     data = dtrain, # los datos donde voy a entrenar
     xval = 0,
-    cp = -1, # esto significa no limitar la complejidad de los splits
-    minsplit = 250, # minima cantidad de registros para que se haga el split
-    minbucket = 100, # tamaño minimo de una hoja
+    cp = -0.15, # esto significa no limitar la complejidad de los splits
+    minsplit = 1185, # minima cantidad de registros para que se haga el split
+    minbucket = 150, # tamaño minimo de una hoja
     maxdepth = 7  # profundidad maxima del arbol
 )
 
@@ -56,10 +56,45 @@ dapply[, Predicted := as.numeric(prob_baja2 > 1 / 40)]
 # genero el archivo para Kaggle
 # primero creo la carpeta donde va el experimento
 dir.create("./exp/")
-dir.create("./exp/KA2001")
+dir.create("./exp/KA2004")
 
 # solo los campos para Kaggle
 fwrite(dapply[, list(numero_de_cliente, Predicted)],
-        file = "./exp/KA2001/K101_001.csv",
+        file = "./exp/KA2004/118_150_7.csv",
         sep = ","
 )
+
+
+
+#--------------------------------------
+
+
+# genero la tabla de entrega
+tb_entrega <- dapply[, list(numero_de_cliente, foto_mes)]
+tb_entrega[, prob := prediccion[, "BAJA+2"]]
+
+# grabo las probabilidad del modelo
+fwrite(tb_entrega,
+       file = "prediccion.txt",
+       sep = "\t"
+)
+
+# ordeno por probabilidad descendente
+setorder(tb_entrega, -prob)
+
+
+# genero archivos con los  "envios" mejores
+# suba TODOS los archivos a Kaggle
+
+cortes <- seq(500, 20000, by = 500)
+for (envios in cortes) {
+  tb_entrega[, Predicted := 0L]
+  tb_entrega[1:envios, Predicted := 1L]
+  
+  fwrite(tb_entrega[, list(numero_de_cliente, Predicted)],
+         file = paste0(PARAM$experimento, "015_1185_150_7_", envios, ".csv"),
+         sep = ","
+  )
+}
+
+cat("\n\nLa generacion de los archivos para Kaggle ha terminado\n")

@@ -23,9 +23,9 @@ PARAM$dataset <- "./datasets/competencia_01.csv"
 
 PARAM$semilla_primigenia <- 799891
 
-PARAM$minsplit <- 11
-PARAM$minbucket <- 2
-PARAM$maxdepth <- 11
+PARAM$minsplit <- 1185
+PARAM$minbucket <- 150
+PARAM$maxdepth <- 7
 
 #------------------------------------------------------------------------------
 # particionar agrega una columna llamada fold a un dataset
