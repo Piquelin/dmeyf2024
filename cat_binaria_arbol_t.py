@@ -100,12 +100,14 @@ X = tabla_202104.to_pandas().drop('clase_ternaria', axis=1)
 y = tabla_202104.to_pandas()['clase_ternaria']
 print(y.value_counts(normalize=True)*100)
 
+y_binaria = y.replace({'BAJA+1':'BAJA+2'})
+print(y_binaria.value_counts(normalize=True)*100)
 
 # resultado_filtrado = tabla_202104.filter(pl.col("clase_ternaria").is_null())
 
 
 #%%
-
+'''
 
 model = DecisionTreeClassifier(criterion='gini',
                                random_state=17,
@@ -119,6 +121,22 @@ model = DecisionTreeClassifier(criterion='gini',
 model.fit(X, y)
 
 features = pd.DataFrame([model.feature_names_in_, model.feature_importances_]).T
+'''
+
+# %% modelo binario
+
+model_b = DecisionTreeClassifier(criterion='gini',
+                               random_state=17,
+                               min_samples_split=250,
+                               min_samples_leaf=100,
+                               max_leaf_nodes=16,
+                               max_depth=7,
+                               class_weight=None,
+                               min_impurity_decrease=0.000)
+
+model_b.fit(X, y_binaria)
+
+features_b = pd.DataFrame([model_b.feature_names_in_, model_b.feature_importances_]).T
 
 
 # %% Visualización
@@ -133,6 +151,7 @@ def dibujo_arbol(model,X):
     plt.show()
 
 dibujo_arbol(model,X)
+dibujo_arbol(model_b,X)
 
 #%%
 
@@ -209,7 +228,7 @@ def calcular_ganancia_polars(model, corte):
 
     return df_resultado
 
-df_resultado = calcular_ganancia_polars(model, 2.5)
+# df_resultado = calcular_ganancia_polars(model, 2.5)
 
 
 #%%
