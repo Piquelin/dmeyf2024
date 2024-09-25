@@ -88,7 +88,31 @@ for suffix in suffixes:
     resultado = resultado.with_columns(
         (pl.col(f'Master{suffix}') + pl.col(f'Visa{suffix}')).alias(f'Total{suffix}')
     )
+    
+# %%
 
+
+# Agregar la columna 'clase_binaria' al DataFrame 'resultado'
+resultado = resultado.with_columns(
+    pl.when(pl.col('clase_ternaria') == "CONTINUA")
+    .then(0)
+    .otherwise(1)
+    .alias('clase_binaria')
+)
+
+
+# Crear o transformar una columna 'clase_binaria' mapeando de 0 a 'CONTINUA' y 1 a 'BAJA'
+resultado = resultado.with_columns(
+    pl.col('clase_binaria')
+    .cast(pl.Utf8) 
+    .replace(0, 'CONTINUA')
+    .replace(1, 'BAJA+2')
+    .alias('clase_binaria')
+)
+
+
+
+# %%
 
 tabla_202104 = resultado.filter(pl.col("foto_mes") == 202104)
 tabla_202106 = resultado.filter(pl.col("foto_mes") == 202106)
@@ -96,8 +120,8 @@ tabla_202106 = resultado.filter(pl.col("foto_mes") == 202106)
 
 #%%
 
-X = tabla_202104.to_pandas().drop('clase_ternaria', axis=1)
-y = tabla_202104.to_pandas()['clase_ternaria']
+X = tabla_202104.to_pandas().drop(['clase_ternaria', 'clase_binaria'], axis=1)
+y = tabla_202104.to_pandas()['clase_binaria']
 print(y.value_counts(normalize=True)*100)
 
 
@@ -137,6 +161,81 @@ dibujo_arbol(model,X)
 #%%
 
 
+
+def calcular_ganancia_polars_binaria(model, corte):
+    # Obteniendo el árbol y los valores asociados
+    tree = model.tree_
+    nodos = tree.node_count
+    valores = tree.value
+    pesos = tree.weighted_n_node_samples
+
+    # Creando una lista para almacenar los datos de cada nodo
+    data = []
+
+    for i in range(nodos):
+        # Para cada nodo, obtenemos la predicción (clase mayoritaria) y los valores de cada clase multiplicados por los pesos
+        prediccion = np.argmax(valores[i])
+        clase_0 = int(valores[i][0][0] * pesos[i])  # Cantidad de la clase 0 en el nodo multiplicada por el peso
+        clase_1 = int(valores[i][0][1] * pesos[i])  # Cantidad de la clase 1 en el nodo multiplicada por el peso
+        clase_2 = int(0 * pesos[i])  # Cantidad de la clase 2 en el nodo multiplicada por el peso
+
+        data.append([i, prediccion, clase_0, clase_1, clase_2])
+        
+
+    # Creando el DataFrame en Polars
+    df_nodos = pl.DataFrame(
+        data,orient="row",
+        schema=['Nodo', 'Predicción', 'BAJA+1', 'BAJA+2', 'CONTINUA']
+    )
+
+    # Calcular las ganancias
+    df_nodos = df_nodos.with_columns([
+        (pl.col('BAJA+2') * 273000).alias('ganancia1'),
+        (-pl.col('BAJA+1') * 7000).alias('ganancia2'),
+        (-pl.col('CONTINUA') * 7000).alias('ganancia3'),
+        (pl.col('BAJA+1') + pl.col('CONTINUA')).alias('Otros'),
+        (pl.col('BAJA+2') * 273000 - pl.col('BAJA+1') * 7000 - pl.col('CONTINUA') * 7000).alias('ganancia'),
+        ((pl.col('BAJA+2') / (pl.col('BAJA+1') + pl.col('BAJA+2') + pl.col('CONTINUA'))) * 100).alias('prob_+2'),
+        ((pl.col('CONTINUA') / (pl.col('BAJA+1') + pl.col('BAJA+2') + pl.col('CONTINUA'))) * 100).alias('prob_C'),
+        ((pl.col('BAJA+1') / (pl.col('BAJA+1') + pl.col('BAJA+2') + pl.col('CONTINUA'))) * 100).alias('prob_+1')
+    ])
+
+    # Extraer información sobre los nodos
+    n_nodes = model.tree_.node_count
+    children_left = model.tree_.children_left
+    children_right = model.tree_.children_right
+
+    # Identificar hojas
+    is_leaf = (children_left == -1) & (children_right == -1)
+    leaf_indices = [i for i in range(n_nodes) if is_leaf[i]]
+
+    # Mostrar el DataFrame para los nodos hoja
+    df_hojas = df_nodos.filter(pl.col('Nodo').is_in(leaf_indices))
+
+    df_resultado = df_hojas.select(['CONTINUA', 'BAJA+1', 'BAJA+2', 'ganancia', 'prob_+2', 'prob_+1', 'prob_C']).sort('prob_+2', descending=True)
+    filtered_sum = df_resultado.filter(pl.col("prob_+2") > corte).select(pl.col("ganancia").sum())
+    filtered_sum_pond = filtered_sum/(0.75*4)
+    
+    df_resultado_final = pl.DataFrame({
+        "ganancia_positiva": filtered_sum,
+        "ganancia_ponderada": filtered_sum_pond
+    })
+
+
+    with pl.Config(
+    tbl_cell_numeric_alignment="RIGHT",
+    thousands_separator=True,
+    float_precision=2,
+    tbl_rows=20
+    ):
+        pl.Config.set_tbl_cell_alignment("RIGHT")
+        print(df_resultado)
+        print(df_resultado_final)
+        
+
+    return df_resultado
+
+        
 def calcular_ganancia_polars(model, corte):
     # Obteniendo el árbol y los valores asociados
     tree = model.tree_
@@ -209,7 +308,8 @@ def calcular_ganancia_polars(model, corte):
 
     return df_resultado
 
-df_resultado = calcular_ganancia_polars(model, 2.5)
+
+df_resultado = calcular_ganancia_polars_binaria(model, 2.5)
 
 
 #%%
@@ -280,6 +380,8 @@ def metrica_ganancia(estimator, X, y, ganancia_positiva=273000, perdida=7000, ve
 
     return ganancias.sum()
 
+
+metrica_ganancia(model, X, y, ganancia_positiva=273000, perdida=7000, verbose=1)
 
 # %% GridSearchCV
 
