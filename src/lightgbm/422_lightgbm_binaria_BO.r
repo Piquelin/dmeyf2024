@@ -212,7 +212,7 @@ EstimarGanancia_lightgbm <- function(x) {
 # Aqui empieza el programa
 
 # Aqui se debe poner la carpeta de la computadora local
-setwd("~/datasets/") # Establezco el Working Directory
+setwd("~/buckets/b1/") # Establezco el Working Directory
 
 
 # genero numeros primos
