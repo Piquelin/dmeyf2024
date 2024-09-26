@@ -35,16 +35,16 @@ options(error = function() {
 PARAM <- list()
 
 PARAM$semilla_primigenia <- 799891
-PARAM$experimento <- "HT4221"
+PARAM$experimento <- "HT4220_4"
 
 PARAM$input$dataset <- "/home/piquelinxbox/datasets/competencia_01.csv"
-PARAM$input$training <- c(202104) # los meses en los que vamos a entrenar
+PARAM$input$training <- c(202101, 202102, 202103, 202104) # los meses en los que vamos a entrenar
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
 # undersampling de 1.0  implica tomar TODOS los datos
 PARAM$trainingstrategy$undersampling <- 1.0
 
-PARAM$hyperparametertuning$iteraciones <- 1000
+PARAM$hyperparametertuning$iteraciones <- 150
 PARAM$hyperparametertuning$xval_folds <- 5
 PARAM$hyperparametertuning$POS_ganancia <- 273000
 PARAM$hyperparametertuning$NEG_ganancia <- -7000
@@ -53,10 +53,10 @@ PARAM$hyperparametertuning$NEG_ganancia <- -7000
 
 # Aqui se cargan los bordes de los hiperparametros
 hs <- makeParamSet(
-  makeNumericParam("learning_rate", lower = 0.01, upper = 0.3),
-  makeIntegerParam("num_leaves", lower = 8L, upper = 1024L),
+  makeNumericParam("learning_rate", lower = 0.01, upper = 0.1),
+  makeIntegerParam("num_leaves", lower = 8L, upper = 2048L),
   makeNumericParam("feature_fraction", lower = 0.1, upper = 1.0),
-  makeIntegerParam("min_data_in_leaf", lower = 1L, upper = 8000L),
+  makeIntegerParam("min_data_in_leaf", lower = 700L, upper = 8000L),
   makeIntegerParam("envios", lower = 5000L, upper = 15000L),
   makeNumericParam("lambda_l2 ", lower = 0.0, upper = 0.5)
 )
