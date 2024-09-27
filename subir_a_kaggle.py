@@ -5,14 +5,11 @@ Created on Thu Sep 26 13:52:37 2024
 @author: jfgonzalez
 """
 
+import time
 import re
-import os
 
-path_exp = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/'
-experimento = 'KA421_4_1/'
 
 # %%
-
 
 def extraer_parametros(ruta_archivo):
     # Cargar el contenido del archivo de texto
@@ -39,30 +36,31 @@ def extraer_parametros(ruta_archivo):
     else:
         return "No se encontró la sección de parámetros."
 
-# Uso de la función
+# %%
+
+# defino ruta de los archivos del experimento
+path_exp = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/'
+experimento = 'KA7250/'
+
+# Levanto parametros del log para este experimento
 ruta_archivo = path_exp + experimento + "modelo.txt"
 params = extraer_parametros(ruta_archivo)
 
-
-
-# %%
-# Voy a mandar con un mensaje que incluya los parámetros usados y la cantidad de envíos
-
-mensaje="lgbm entrenado en 4 meses abril predicho en junio"
-
-experimento = "KA421_4_1/"
-
-# Envío a la competencia
-
+# mensajes y detalles para sibir a kaggle
+mensaje= f"del pipeline del jueves, como prueba. Parametros: {params}"
 competencia="dm-ey-f-2024-primera"
 
+experimento[0:-1]
+
 # %%
 
-for entregas in range (5000, 20001, 500):
-    archivo = f"KA421_4_1_{entregas}.csv"
+for entregas in range (8000, 15001, 500):
+    archivo = f"{experimento[0:-1]}_{entregas}.csv"
     path_archivo = path_exp + experimento + archivo
     print('Subiendo', archivo)
-    !kaggle competitions submit -c {competencia} -f "{path_archivo}" -m ""
+    !kaggle competitions submit -c {competencia} -f "{path_archivo}" -m "{mensaje}"
+    time.sleep(1.3) # Seconds
+
 
 # %%
 
