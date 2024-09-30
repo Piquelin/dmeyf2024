@@ -136,10 +136,21 @@ tb_entrega[, prob := prediccion]
 lgb.save(modelo, "modelo.txt" )
 #--------------------------------------
 
+# Asegúrate de que las columnas con números pequeños estén en formato decimal
+tb_entrega[] <- lapply(tb_entrega, function(x) {
+  if(is.numeric(x)) {
+    return(format(x, scientific = FALSE, digits = 15))
+  } else {
+    return(x)
+  }
+})
+
+
 # grabo las probabilidad del modelo
 fwrite(tb_entrega,
   file = "prediccion.txt",
-  sep = "\t"
+  sep = "\t",
+  quote = FALSE  # Para evitar comillas innecesarias
 )
 
 # ordeno por probabilidad descendente
@@ -152,7 +163,7 @@ setorder(tb_entrega, -prob)
 # suba TODOS los archivos a Kaggle
 # espera a la siguiente clase sincronica en donde el tema sera explicado
 
-cortes <- seq(8000, 15000, by = 500)
+cortes <- seq(500, 15000, by = 500)
 for (envios in cortes) {
   tb_entrega[, Predicted := 0L]
   tb_entrega[1:envios, Predicted := 1L]

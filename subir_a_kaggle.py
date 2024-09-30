@@ -40,21 +40,23 @@ def extraer_parametros(ruta_archivo):
 
 # defino ruta de los archivos del experimento
 path_exp = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/'
-experimento = 'KA7250_inti_us_75/'
+experimento = 'KA7250_inti_us_100/'
 
 # Levanto parametros del log para este experimento
 ruta_archivo = path_exp + experimento + "modelo.txt"
 params = extraer_parametros(ruta_archivo)
 
 # mensajes y detalles para sibir a kaggle
-mensaje= f"con 75% de los datos vs primera con el 50%. Parametros: {params}"
+mensaje= f"100% de los datos. Parametros: {params}"
 competencia="dm-ey-f-2024-primera"
 
 experimento[0:-1]
 
-# %%
+# %% Quiero optimizar la entrega entre 1000 y 10000 
+# más ganacia con menos envíos mejor
 
-for entregas in range (8000, 15001, 500):
+
+for entregas in range (500, 15001, 500):
     archivo = f"{experimento[0:-1]}_{entregas}.csv"
     path_archivo = path_exp + experimento + archivo
     print('Subiendo', archivo)

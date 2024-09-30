@@ -33,8 +33,8 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento_data <- "PP7230_inti_us_75"
-PARAM$experimento <- "HT7240_inti_us_75"
+PARAM$experimento_data <- "PP7230_inti_us_100"
+PARAM$experimento <- "HT7240_inti_us_100"
 
 PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
 
