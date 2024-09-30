@@ -5,7 +5,7 @@ Created on Thu Sep 26 13:52:37 2024
 @author: jfgonzalez
 """
 
-import time
+# import time
 import re
 
 
@@ -52,14 +52,16 @@ competencia="dm-ey-f-2024-primera"
 
 experimento[0:-1]
 
-# %%
+# %% Quiero optimizar la entrega entre 1000 y 10000 
+# más ganacia con menos envíos mejor
 
-for entregas in range (8000, 15001, 500):
+
+for entregas in range (500, 15001, 500):
     archivo = f"{experimento[0:-1]}_{entregas}.csv"
     path_archivo = path_exp + experimento + archivo
     print('Subiendo', archivo)
     !kaggle competitions submit -c {competencia} -f "{path_archivo}" -m "{mensaje}"
-    time.sleep(1.3) # Seconds
+    # time.sleep(1.3) # Seconds
 
 
 # %%
