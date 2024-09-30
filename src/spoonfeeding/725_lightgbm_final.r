@@ -25,10 +25,10 @@ options(error = function() {
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento_data <- "PP7230_inti_us_75"
-PARAM$experimento_bayesiana <- "HT7240_inti_us_75"
+PARAM$experimento_data <- "PP7230_vm_us_25"
+PARAM$experimento_bayesiana <- "HT7240_vm_us_25"
 
-PARAM$experimento <- "KA7250_inti_us_75"
+PARAM$experimento <- "KA7250_vm_us_25"
 
 
 #------------------------------------------------------------------------------
@@ -51,8 +51,8 @@ action_limitar_memoria <- function( GB_min = 4 ) {
 # action_limitar_memoria( 4 )
 
 # Aqui empieza el programa
-# setwd("~/buckets/b1/exp/")
-setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
+setwd("~/buckets/b1/exp/")
+# setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
 # setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
 
 # cargo el resultado de la Bayesian Optimization
@@ -152,7 +152,7 @@ setorder(tb_entrega, -prob)
 # suba TODOS los archivos a Kaggle
 # espera a la siguiente clase sincronica en donde el tema sera explicado
 
-cortes <- seq(8000, 15000, by = 500)
+cortes <- seq(5000, 15000, by = 500)
 for (envios in cortes) {
   tb_entrega[, Predicted := 0L]
   tb_entrega[1:envios, Predicted := 1L]
