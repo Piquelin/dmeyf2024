@@ -8,7 +8,7 @@ gc() # garbage collection
 
 require("data.table")
 require("rlist")
-require("ulimit")  # para controlar la memoria
+# require("ulimit")  # para controlar la memoria
 
 
 # para que se detenga ante el primer error
@@ -25,7 +25,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "PP7230_inti_us_75"
+PARAM$experimento <- "PP7230_inti_rev"
 
 PARAM$input$dataset <- "./datasets/competencia_01.csv"
 
@@ -41,7 +41,7 @@ PARAM$trainingstrategy$testing <- c(202104)
 PARAM$trainingstrategy$validation <- c(202103)
 PARAM$trainingstrategy$training <- c(202102)
 
-
+# acá me tengo que meter si quiero hacer el loop
 PARAM$trainingstrategy$final_train <- c(202102, 202103, 202104)
 PARAM$trainingstrategy$future <- c(202106)
 
@@ -166,6 +166,9 @@ Corregir_Rotas <- function(dataset, pmetodo) {
 
   Corregir_atributo("mtarjeta_master_descuentos",
     c(202102), pmetodo)
+  
+  Corregir_atributo("ccajas_depositos",
+                    c(202105), pmetodo)
 
   cat( "fin Corregir_rotas()\n")
 }
