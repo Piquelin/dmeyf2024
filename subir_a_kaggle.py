@@ -5,7 +5,7 @@ Created on Thu Sep 26 13:52:37 2024
 @author: jfgonzalez
 """
 
-# import time
+import time
 import re
 
 
@@ -40,14 +40,14 @@ def extraer_parametros(ruta_archivo):
 
 # defino ruta de los archivos del experimento
 path_exp = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/'
-experimento = 'KA7250_inti_us_75/'
+experimento = 'KA7250_inti_us_100/'
 
 # Levanto parametros del log para este experimento
 ruta_archivo = path_exp + experimento + "modelo.txt"
 params = extraer_parametros(ruta_archivo)
 
 # mensajes y detalles para sibir a kaggle
-mensaje= f"con 75% de los datos vs primera con el 50%. Parametros: {params}"
+mensaje= f"100% de los datos. Parametros: {params}"
 competencia="dm-ey-f-2024-primera"
 
 experimento[0:-1]
@@ -61,7 +61,7 @@ for entregas in range (500, 15001, 500):
     path_archivo = path_exp + experimento + archivo
     print('Subiendo', archivo)
     !kaggle competitions submit -c {competencia} -f "{path_archivo}" -m "{mensaje}"
-    # time.sleep(1.3) # Seconds
+    time.sleep(1.3) # Seconds
 
 
 # %%
