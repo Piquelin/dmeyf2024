@@ -25,11 +25,12 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "PP7230_inti_rev"
+PARAM$experimento <- "PP7230_75_s3"
 
 PARAM$input$dataset <- "./datasets/competencia_01.csv"
 
-PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
+# lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
+PARAM$semilla_azar <- 799961 # Aqui poner su  primer  semilla
 
 
 PARAM$driftingcorreccion <- "ninguno"
@@ -46,7 +47,7 @@ PARAM$trainingstrategy$final_train <- c(202102, 202103, 202104)
 PARAM$trainingstrategy$future <- c(202106)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$training_undersampling <- 0.75
+PARAM$trainingstrategy$training_undersampling <- 0.25
 
 # esta aberracion fue creada a pedido de Joaquin Tschopp
 #  Publicamente Gustavo Denicolay NO se hace cargo de lo que suceda
