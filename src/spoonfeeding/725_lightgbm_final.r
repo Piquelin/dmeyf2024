@@ -25,10 +25,10 @@ options(error = function() {
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento_data <- "PP7230_inti_us_75"
+PARAM$experimento_data <- "PP7230_75_s3"
 PARAM$experimento_bayesiana <- "HT7240_inti_us_75"
 
-PARAM$experimento <- "KA7250_inti_us_75"
+PARAM$experimento <- "KA7250_75_s3"
 
 
 #------------------------------------------------------------------------------
@@ -96,6 +96,7 @@ dfinaltrain <- lgb.Dataset(
 setorder( tb_BO_log, -ganancia )
 param_completo <- copy(as.list(tb_BO_log[1]))
 
+# SEMILLA
 set.seed(param_completo$seed, kind = "L'Ecuyer-CMRG")
 
 # entreno el modelo
@@ -112,7 +113,7 @@ archivo_importancia <- "impo.txt"
 
 fwrite(tb_importancia,
   file = archivo_importancia,
-  sep = "\t"
+  sep = ";"
 )
 
 #--------------------------------------
@@ -163,7 +164,7 @@ setorder(tb_entrega, -prob)
 # suba TODOS los archivos a Kaggle
 # espera a la siguiente clase sincronica en donde el tema sera explicado
 
-cortes <- seq(500, 15000, by = 500)
+cortes <- seq(5000, 15000, by = 1000)
 for (envios in cortes) {
   tb_entrega[, Predicted := 0L]
   tb_entrega[1:envios, Predicted := 1L]
