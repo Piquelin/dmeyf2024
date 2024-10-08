@@ -8,6 +8,9 @@ Created on Thu Sep 26 13:52:37 2024
 import time
 import re
 
+import os
+from kaggle.api.kaggle_api_extended import KaggleApi
+import pandas as pd
 
 # %%
 
@@ -40,14 +43,14 @@ def extraer_parametros(ruta_archivo):
 
 # defino ruta de los archivos del experimento
 path_exp = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/'
-experimento = 'KA7251_25_s2/'
+experimento = 'KA7251_25_s4/'
 
 # Levanto parametros del log para este experimento
 ruta_archivo = path_exp + experimento + "modelo.txt"
 params = extraer_parametros(ruta_archivo)
 
 # mensajes y detalles para sibir a kaggle
-mensaje= f"primera_sem_clust" #" Parametros: {params}"
+mensaje= f"cuarta_sem_clust" #" Parametros: {params}"
 competencia="dm-ey-f-2024-primera"
 
 # experimento[0:-1]
@@ -66,31 +69,14 @@ for entregas in range (5000, 15001, 1000):
 
 # %%
 
-import os
-from kaggle.api.kaggle_api_extended import KaggleApi
-import pandas as pd
-
 # Inicializar la API usando las credenciales de kaggle.json
 api = KaggleApi()
 api.authenticate()
 
 
-# Configura la ID de la competencia y la lista de archivos con sus descripciones
-competition = 'dm-ey-f-2024-primera'
-# scores_dir = './scores'
-# experiment_name = 'KA5720'
-
-# %%
-
-      self,
-      competition,
-      group=None,
-      sort=None,  # SubmissionSortBy.SUBMISSION_SORT_BY_NAME,
-      page_token=None,
-      page_size=20):
 # %%
 # Get your submission history for the competition
-submissions = api.competition_submissions(competition, page_token=2, page_size=20)
+submissions = api.competition_submissions(competencia, page_token=2, page_size=20)
 
 # Create a list of dictionaries to store submission details
 submission_list = []
@@ -109,3 +95,4 @@ for submission in submissions:
 df = pd.DataFrame(submission_list)
 
 
+int(df.Score)
