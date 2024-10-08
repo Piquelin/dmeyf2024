@@ -25,12 +25,12 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "PP7230_75_s3"
+PARAM$experimento <- "PP7230_25_s1_n"
 
 PARAM$input$dataset <- "./datasets/competencia_01.csv"
 
 # lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
-PARAM$semilla_azar <- 799961 # Aqui poner su  primer  semilla
+PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
 
 
 PARAM$driftingcorreccion <- "ninguno"
