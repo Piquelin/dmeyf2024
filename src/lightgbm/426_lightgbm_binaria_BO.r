@@ -35,9 +35,10 @@ options(error = function() {
 PARAM <- list()
 
 PARAM$semilla_primigenia <- 799891
-PARAM$experimento <- "HT4220_4"
+PARAM$experimento <- "HT4220_clus"
 
-PARAM$input$dataset <- "/home/piquelinxbox/datasets/competencia_01.csv"
+# PARAM$input$dataset <- "/home/piquelinxbox/datasets/competencia_01.csv"
+PARAM$input$dataset <- "/home/piquelinxbox/buckets/b1/exp/PP7230_25_s1/dataset.csv.gz"
 PARAM$input$training <- c(202102, 202103) # los meses en los que vamos a entrenar
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
