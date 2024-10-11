@@ -33,8 +33,8 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento_data <- "PP7230_25_s4"
-PARAM$experimento <- "HT7241_25_s4"
+PARAM$experimento_data <- "PP7235_25_s1_clus_sin_pres"
+PARAM$experimento <- "HT7245_25_s1_clus_sin_pres"
 
 # 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799991 # Aqui poner su  primer  semilla
@@ -83,8 +83,8 @@ PARAM$bo_lgb <- makeParamSet(
   makeNumericParam("learning_rate", lower = 0.02, upper = 0.3),
   makeNumericParam("feature_fraction", lower = 0.01, upper = 0.2),
   makeIntegerParam("num_leaves", lower = 8L, upper = 4096L),
-  makeIntegerParam("min_data_in_leaf", lower = 10L, upper = 10000L),
-  makeNumericParam("lambda_l2", lower = 0.0, upper = 0.5)
+  makeIntegerParam("min_data_in_leaf", lower = 10L, upper = 10000L)
+  # makeNumericParam("lambda_l2", lower = 0.0, upper = 0.5)
 )
 
 # si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
@@ -277,8 +277,8 @@ EstimarGanancia_lightgbm <- function(x) {
 #  la salud mental de los alumnos es el bien mas preciado 
 # action_limitar_memoria( 4 )
 
-setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
-# setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
+# setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
+setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
 # setwd("~/buckets/b1/exp/") # Establezco el Working Directory
 
 # cargo el dataset donde voy a entrenar el modelo

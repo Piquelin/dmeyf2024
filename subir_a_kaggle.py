@@ -10,6 +10,7 @@ import re
 
 import os
 from kaggle.api.kaggle_api_extended import KaggleApi
+
 import pandas as pd
 
 # %%
@@ -25,7 +26,7 @@ def extraer_parametros(ruta_archivo):
 
     if section_match:
         parameters_section = section_match.group(1)
-        
+
         # Usar una expresión regular para encontrar los parámetros solo en la sección
         param_pattern = r'\[([a-zA-Z_]+):\s*([^\]]+)\]'
         matches = re.findall(param_pattern, parameters_section)
@@ -43,11 +44,12 @@ def extraer_parametros(ruta_archivo):
 
 # defino ruta de los archivos del experimento
 path_exp = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/'
-experimento = 'KA7251_25_s4/'
+path_exp = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/'
+experimento = 'KA4215_06/'
 
-# Levanto parametros del log para este experimento
-ruta_archivo = path_exp + experimento + "modelo.txt"
-params = extraer_parametros(ruta_archivo)
+# # Levanto parametros del log para este experimento
+# ruta_archivo = path_exp + experimento + "modelo.txt"
+# params = extraer_parametros(ruta_archivo)
 
 # mensajes y detalles para sibir a kaggle
 mensaje= f"cuarta_sem_clust" #" Parametros: {params}"
@@ -55,11 +57,11 @@ competencia="dm-ey-f-2024-primera"
 
 # experimento[0:-1]
 
-# %% Quiero optimizar la entrega entre 1000 y 10000 
+# %% Quiero optimizar la entrega entre 1000 y 10000
 # más ganacia con menos envíos mejor
 
 
-for entregas in range (5000, 15001, 1000):
+for entregas in range (7000, 14001, 500):
     archivo = f"{experimento[0:-1]}_{entregas}.csv"
     path_archivo = path_exp + experimento + archivo
     print('Subiendo', archivo)
@@ -72,6 +74,43 @@ for entregas in range (5000, 15001, 1000):
 # Inicializar la API usando las credenciales de kaggle.json
 api = KaggleApi()
 api.authenticate()
+
+# %%
+
+all_submissions = []
+page = 1
+page_size = 100  # Max number of submissions per page
+max_pages = 20 # Max number of pages to fetch
+
+while True:
+    # Get the submissions for the current page
+    submissions = api.competition_submissions(competencia, page_token=page, page_size=page_size)
+
+    # If no submissions are returned, we have reached the last page
+    if len(submissions) == 0 or page > max_pages:
+        break
+
+    # Append the submissions data
+    all_submissions.extend([{
+        'submission_id': sub.ref,
+        'date': sub.date,
+        'score': sub.publicScore,
+        'description': sub.description,
+        'fileName': sub.fileName,
+        'submittedBy': sub.submittedBy
+    } for sub in submissions])
+
+    # Move to the next page
+    page += 1
+
+# Convert the list into a DataFrame for better readability and manipulation
+df = pd.DataFrame(all_submissions)
+
+# %%
+# Optionally, save the scores to a CSV file
+df.to_csv('./scores/my_kaggle_submissions.csv', index=False)
+
+print("Submission scores saved to 'my_kaggle_submissions.csv'")
 
 
 # %%

@@ -10,30 +10,30 @@ require("lightgbm")
 
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 PARAM <- list()
-PARAM$experimento <- "KA4215"
+PARAM$experimento <- "KA4215_06_0203"
 
 PARAM$semilla_primigenia <- 799891
 
-
-PARAM$input$dataset <- "./competencia_01.csv"
+PARAM$input$dataset <- "exp/PP7230_25_s1/dataset.csv.gz"
+# PARAM$input$dataset <- "./competencia_01.csv"
 PARAM$input$training <- c(202102, 202103) # meses donde se entrena el modelo
-PARAM$input$future <- c(202104) # meses donde se aplica el modelo
+PARAM$input$future <- c(202106) # meses donde se aplica el modelo
 
 
-PARAM$finalmodel$num_iterations <- 411
-PARAM$finalmodel$learning_rate <- 0.0517855437293863
-PARAM$finalmodel$feature_fraction <- 0.991184304587602
-PARAM$finalmodel$min_data_in_leaf <- 3568
-PARAM$finalmodel$num_leaves <- 313
-
+PARAM$finalmodel$num_iterations <- 1451
+PARAM$finalmodel$learning_rate <- 0.0109483375930286
+PARAM$finalmodel$feature_fraction <- 0.397401254211712
+PARAM$finalmodel$min_data_in_leaf <- 2377
+PARAM$finalmodel$num_leaves <- 2045
+PARAM$finalmodel$lambda_l2 <- 0.351597097861546
 
 PARAM$finalmodel$max_bin <- 31
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 # Aqui empieza el programa
-# setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/")
-setwd("~/datasets/") # Establezco el Working Directory
+setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/")
+# setwd("~/datasets/") # Establezco el Working Directory
 
 
 # cargo el dataset donde voy a entrenar
@@ -88,6 +88,7 @@ modelo <- lgb.train(
     num_leaves = PARAM$finalmodel$num_leaves,
     min_data_in_leaf = PARAM$finalmodel$min_data_in_leaf,
     feature_fraction = PARAM$finalmodel$feature_fraction,
+    lambda_l2 = PARAM$finalmodel$lambda_l2, 
     seed = 799891
   )
 )
