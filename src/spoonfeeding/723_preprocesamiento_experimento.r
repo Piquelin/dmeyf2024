@@ -25,9 +25,9 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "PP7235_25_s1_clus_sin_pres"
+PARAM$experimento <- "PP7235_25_s1_sin_pres"
 
-PARAM$input$dataset <- "./datasets/competencia_01_clust.csv"
+PARAM$input$dataset <- "./datasets/resultado_sin_prestamos.csv"
 
 # lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
