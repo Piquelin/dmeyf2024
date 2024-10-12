@@ -12,7 +12,7 @@ gc() # garbage collection
 require("data.table")
 require("primes")
 require("lightgbm")
-require("ulimit")  # para controlar la memoria
+# require("ulimit")  # para controlar la memoria
 
 
 # para que se detenga ante el primer error
@@ -28,12 +28,13 @@ options(error = function() {
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento_data <- "PP7430"
-PARAM$experimento_bayesiana <- "HT7440"
+PARAM$experimento_data <- "PP7236_25_s1_sp_f04"
+PARAM$experimento_bayesiana <- "HT7246_25_s1_sp_f04"
 
-PARAM$experimento <- "KA7450"
+PARAM$experimento <- "KA7456_25_s1_sp_f04"
 
-PARAM$semilla_azar <- 102191 # Aqui poner su  primer  semilla
+# lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
+PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
 PARAM$semillas_cantidad <- 3
 
 # c(1,2) son el mejor y el segundo mejor de la bayesian optimization
@@ -57,10 +58,12 @@ action_limitar_memoria <- function( GB_min = 4 ) {
 # Limito la memoria, para que ningun alumno debe sufrir que el R 
 #  aborte sin avisar si no hay suficiente memoria
 #  la salud mental de los alumnos es el bien mas preciado 
-action_limitar_memoria( 4 )
+#action_limitar_memoria( 4 )
 
 # Aqui empieza el programa
-setwd("~/buckets/b1/exp/")
+# setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
+setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
+# setwd("~/buckets/b1/exp/") # Establezco el Working Directory
 
 # genero las semillas con las que voy a trabajar
 #  ninguna de ellas es exactamente la original del alumno

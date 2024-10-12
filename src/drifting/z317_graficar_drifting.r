@@ -100,15 +100,16 @@ graficar_drift <- function(campo, pmes0, pmes1) {
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 # Aqui comienza el programa
-setwd("~/buckets/b1/") # Establezco el Working Directory
-
+# setwd("~/buckets/b1/") # Establezco el Working Directory
+setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/")
 
 # cargo dataset
 dataset <- fread( "./datasets/competencia_01.csv" )
 
+
 dir.create("./exp/", showWarnings = FALSE)
-dir.create("./exp/DR3161/", showWarnings = FALSE)
-setwd("./exp/DR3161/")
+dir.create("./exp/DR3161_0306/", showWarnings = FALSE)
+setwd("./exp/DR3161_0306/")
 
 # creo la clase_binaria SI={ BAJA+1, BAJA+2 }    NO={ CONTINUA }
 dataset[

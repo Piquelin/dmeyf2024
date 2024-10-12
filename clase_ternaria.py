@@ -83,5 +83,13 @@ resultado = dataset.join(
 resultado.write_csv("resultado_con_clase.csv", separator=",")
 resultado.write_parquet("resultado_con_clase.parquet")
 
+# %%
 for ev_mes in tabla_bool.columns[-4:]:
     print(tabla_bool[ev_mes].value_counts())
+
+
+resultado['clase_ternaria'].value_counts()
+# %%
+
+res_sin_prestamos = resultado.drop(['cprestamos_personales', 'mprestamos_personales'])
+res_sin_prestamos.write_csv("resultado_sin_prestamos.csv", separator=",")
