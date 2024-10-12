@@ -28,10 +28,10 @@ options(error = function() {
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento_data <- "PP7235_25_s1_sin_pres"
-PARAM$experimento_bayesiana <- "HT7245_25_s1_sin_pres"
+PARAM$experimento_data <- "PP7236_25_s1_sp_f04"
+PARAM$experimento_bayesiana <- "HT7246_25_s1_sp_f04"
 
-PARAM$experimento <- "KA7455_25_s1_sin_pres"
+PARAM$experimento <- "KA7456_25_s1_sp_f04"
 
 # lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla

@@ -33,8 +33,8 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento_data <- "PP7235_25_s1_clus_sin_pres"
-PARAM$experimento <- "HT7245_25_s1_clus_sin_pres"
+PARAM$experimento_data <- "PP7235_25_s1_sin_pres"
+PARAM$experimento <- "HT7245_quant"
 
 # 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799991 # Aqui poner su  primer  semilla
@@ -57,7 +57,7 @@ PARAM$lgb_basicos <- list(
   min_gain_to_split = 0.0, # min_gain_to_split >= 0.0
   min_sum_hessian_in_leaf = 0.001, #  min_sum_hessian_in_leaf >= 0.0
   lambda_l1 = 0.0, # lambda_l1 >= 0.0
-  # lambda_l2 = 0.0, # lambda_l2 >= 0.0
+  lambda_l2 = 0.0, # lambda_l2 >= 0.0
   max_bin = 31L, # lo debo dejar fijo, no participa de la BO
   num_iterations = 9999, # un numero muy grande, lo limita early_stopping_rounds
 
@@ -72,6 +72,11 @@ PARAM$lgb_basicos <- list(
   skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
 
   extra_trees = TRUE, # Magic Sauce
+  
+  use_quantized_grad = TRUE, # enabling this will discretize (quantize) the gradients and hessians into bins
+  # num_grad_quant_bins =  4, 
+  quant_train_renew_leaf = TRUE, # renewing is very helpful for good quantized training accuracy for ranking objectives
+  
 
   seed = PARAM$semilla_azar
 )
@@ -83,13 +88,14 @@ PARAM$bo_lgb <- makeParamSet(
   makeNumericParam("learning_rate", lower = 0.02, upper = 0.1),
   makeNumericParam("feature_fraction", lower = 0.1, upper = 1.0),
   makeIntegerParam("num_leaves", lower = 500L, upper = 4096L),
-  makeIntegerParam("min_data_in_leaf", lower = 1000L, upper = 10000L)
+  makeIntegerParam("min_data_in_leaf", lower = 1000L, upper = 10000L),
+  makeIntegerParam("num_grad_quant_bins", lower = 3L, upper = 7L)
   # makeNumericParam("lambda_l2", lower = 0.0, upper = 0.5)
 )
 
 # si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
 #  si se llama J.T. dejelo en 50 para no sufrir
-PARAM$bo_iteraciones <- 100 # iteraciones de la Optimizacion Bayesiana
+PARAM$bo_iteraciones <- 50 # iteraciones de la Optimizacion Bayesiana
 
 
 #------------------------------------------------------------------------------
@@ -170,8 +176,8 @@ fganancia_lgbm_meseta <- function(probs, datos) {
 
     cat("\r")
     cat(
-      "Validate ", GLOBAL_iteracion, " ", " ",
-      GLOBAL_arbol, "  ", gan, "   ", GLOBAL_gan_max, "   "
+      "Validate ", GLOBAL_iteracion, " arbol", GLOBAL_arbol,
+      "- pos", pos, "- gan", gan, "  glob_gan_max", GLOBAL_gan_max, "  "
     )
   }
 
