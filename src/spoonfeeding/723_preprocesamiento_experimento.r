@@ -25,7 +25,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "PP7235_25_s1_sin_pres"
+PARAM$experimento <- "PP7235_25_s1_sin_pres_0"
 
 PARAM$input$dataset <- "./datasets/resultado_sin_prestamos.csv"
 
@@ -405,16 +405,16 @@ nans <- lapply(
 )
 
 
-# nans_qty <- sum(unlist(nans))
-# if (nans_qty > 0) {
-#  cat(
-#    "ATENCION, hay", nans_qty,
-#    "valores NaN 0/0 en tu dataset. Seran pasados arbitrariamente a 0\n"
-#  )
+nans_qty <- sum(unlist(nans))
+ if (nans_qty > 0) {
+  cat(
+    "ATENCION, hay", nans_qty,
+    "valores NaN 0/0 en tu dataset. Seran pasados arbitrariamente a 0\n"
+  )
 
-#  cat("Si no te gusta la decision, modifica a gusto el programa!\n\n")
-#  dataset[mapply(is.nan, dataset)] <- 0
-#}
+  cat("Si no te gusta la decision, modifica a gusto el programa!\n\n")
+  dataset[mapply(is.nan, dataset)] <- 0
+}
 
 
 

@@ -28,17 +28,17 @@ options(error = function() {
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento_data <- "PP7236_25_s1_sp_f04"
-PARAM$experimento_bayesiana <- "HT7246_25_s1_sp_f04"
+PARAM$experimento_data <- "PP7235_25_s1_sin_pres"
+PARAM$experimento_bayesiana <- "HT7245_quant"
 
-PARAM$experimento <- "KA7456_25_s1_sp_f04"
+PARAM$experimento <- "KA7455_quant"
 
 # lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
-PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
+PARAM$semilla_azar <- 799961 # Aqui poner su  primer  semilla
 PARAM$semillas_cantidad <- 3
 
 # c(1,2) son el mejor y el segundo mejor de la bayesian optimization
-PARAM$bo_ranks <- c(1, 2 )
+PARAM$bo_ranks <- c(2, 4 )
 
 #------------------------------------------------------------------------------
 # limita el uso de memoria RAM a  Total_hardware - GB_min
@@ -211,7 +211,7 @@ for( vrank in PARAM$bo_ranks ){
 
 
     # genero archivos para Kaggle
-    cortes <- seq(8000, 13000, by = 500)
+    cortes <- seq(8000, 18000, by = 500)
     for (envios in cortes) {
       tb_entrega[, Predicted := 0L]
       tb_entrega[1:envios, Predicted := 1L]
