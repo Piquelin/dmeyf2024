@@ -34,7 +34,7 @@ PARAM$experimento_bayesiana <- "HT7245_quant"
 PARAM$experimento <- "KA7455_quant"
 
 # lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
-PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
+PARAM$semilla_azar <- 799991 # Aqui poner su  primer  semilla
 PARAM$semillas_cantidad <- 3
 
 # c(1,2) son el mejor y el segundo mejor de la bayesian optimization
