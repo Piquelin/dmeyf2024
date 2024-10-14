@@ -34,7 +34,7 @@ options(error = function() {
 PARAM <- list()
 
 PARAM$experimento_data <- "PP7235_25_s1_sin_pres"
-PARAM$experimento <- "HT7245_quant2"
+PARAM$experimento <- "HT7245_quant"
 
 # 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799991 # Aqui poner su  primer  semilla
@@ -42,6 +42,10 @@ PARAM$semilla_azar <- 799991 # Aqui poner su  primer  semilla
 PARAM$hyperparametertuning$POS_ganancia <- 273000
 PARAM$hyperparametertuning$NEG_ganancia <- -7000
 
+# parametros registrados en  BO_log.txt
+# fecha	cols	rows	boosting	objective	metric	first_metric_only	boost_from_average	feature_pre_filter	force_row_wise	verbosity	max_depth	min_gain_to_split	min_sum_hessian_in_leaf	lambda_l1	lambda_l2	max_bin	num_iterations	bagging_fraction	pos_bagging_fraction	neg_bagging_fraction	is_unbalance	scale_pos_weight	drop_rate	max_drop	skip_drop	extra_trees	use_quantized_grad	quant_train_renew_leaf	seed	learning_rate	feature_fraction	num_leaves	min_data_in_leaf	num_grad_quant_bins	estimulos	ganancia	iteracion_bayesiana
+# 20241012 152911	569	41985	gbdt	binary	custom	TRUE	TRUE	FALSE	TRUE	-100	-1	0	0.001	0	0	31	761	1	1	1	FALSE	1	0.1	50	0.5	TRUE	TRUE	TRUE	799991	0.0254916538458663	0.777150625088209	2441	1560	4	10557	139985037.981009	46
+# 20241012 154054	569	41985	gbdt	binary	custom	TRUE	TRUE	FALSE	TRUE	-100	-1	0	0.001	0	0	31	1907	1	1	1	FALSE	1	0.1	50	0.5	TRUE	TRUE	TRUE	799991	0.0257186892792681	0.79315967509857	2393	2501	4	11746	139668134.932534	54
 
 # Hiperparametros FIJOS de  lightgbm
 PARAM$lgb_basicos <- list(
@@ -97,7 +101,7 @@ PARAM$bo_lgb <- makeParamSet(
   # makeNumericParam("neg_bagging_fraction", lower = 0.25, upper = 0.9)
   
   # makeNumericParam("drop_rate", lower = 0.1, upper = 1.0),
-  makeIntegerParam("num_grad_quant_bins", lower = 2L, upper = 50L)
+  makeIntegerParam("num_grad_quant_bins", lower = 3L, upper = 7L) #después estuve probando aumentar esto
   # makeNumericParam("lambda_l2", lower = 0.0, upper = 0.5)
 )
 

@@ -78,7 +78,7 @@ resultado = dataset.join(
     on=["numero_de_cliente", "foto_mes"],
     how="left"
 )
-
+'''
 # guardo
 resultado.write_csv("resultado_con_clase.csv", separator=",")
 resultado.write_parquet("resultado_con_clase.parquet")
@@ -89,6 +89,7 @@ for ev_mes in tabla_bool.columns[-4:]:
 
 
 resultado['clase_ternaria'].value_counts()
+'''
 # %%
 
 res_sin_prestamos = resultado.drop(['cprestamos_personales', 'mprestamos_personales'])
