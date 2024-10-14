@@ -7,9 +7,11 @@ Created on Mon Aug 19 13:58:02 2024
 
 
 import polars as pl
+import gzip
+import pandas as pd
 
-dataset = pl.read_csv("competencia_01_crudo.csv", infer_schema_length=10000)
-
+# dataset = pl.read_csv("competencia_01_crudo.csv", infer_schema_length=10000)
+dataset = pl.read_csv("datasets/competencia_02_crudo.csv.gz", infer_schema_length=500000)
 
 #%% pivoteo
 
@@ -55,9 +57,10 @@ def evaluar_condiciones(tabla: pl.DataFrame, col1: str, col2: str, col3: str) ->
 
 #%% Genero los resultados para los 4 primeros meses
 
-lista_meses = [	'202101','202102','202103','202104','202105','202106']
+lista_meses = tabla.columns[1:]
+meses_completos = len(lista_meses)-2
 
-for i in range(4):
+for i in range(meses_completos):
     tabla_bool = tabla_bool.with_columns(evaluar_condiciones(tabla_bool, lista_meses[i], lista_meses[i+1], lista_meses[i+2]).alias(f"evaluacion_{lista_meses[i]}"))
 
 
@@ -72,25 +75,42 @@ clase_cliente = clase_cliente.filter(pl.col("foto_mes").str.starts_with("e"))
 # paso en limpio las fechas
 clase_cliente = clase_cliente.with_columns(pl.col("foto_mes").str.slice(-6).cast(pl.Int64).alias("foto_mes"))
 
-#%%  Realizar la unión usando 'numero_de' y 'foto_mes' como claves
+# %%  Realizar la unión usando 'numero_de' y 'foto_mes' como claves
 resultado = dataset.join(
     clase_cliente,
     on=["numero_de_cliente", "foto_mes"],
     how="left"
 )
-'''
-# guardo
-resultado.write_csv("resultado_con_clase.csv", separator=",")
-resultado.write_parquet("resultado_con_clase.parquet")
+
+
+# %% guardo
+
+# file_path = "./datasets/competencia_02.csv.gz"
+
+# with gzip.open(file_path, 'wb') as f:
+#     resultado.lazy().collect().write_csv(f, separator=",")
+
+
+# resultado.write_csv('./datasets/competencia_02.csv', separator=",")
+# resultado.write_parquet("./datasets/competencia_02.parquet")
 
 # %%
-for ev_mes in tabla_bool.columns[-4:]:
-    print(tabla_bool[ev_mes].value_counts())
+clases_por_mes = []
+for ev_mes in tabla_bool.columns[-meses_completos:]:
+    valores = tabla_bool[ev_mes].value_counts().to_pandas()
+    valores.set_index(valores[ev_mes], inplace=True)
+    valores.drop(ev_mes, axis=1, inplace=True)
+    valores.index.rename('clase', inplace=True)
+    valores.columns = [ev_mes]
+    
+    # print(valores)
+    clases_por_mes.append(valores)
 
+tabla_meses = pd.concat(clases_por_mes, axis=1).T
+print(tabla_meses)
 
-resultado['clase_ternaria'].value_counts()
-'''
 # %%
 
 res_sin_prestamos = resultado.drop(['cprestamos_personales', 'mprestamos_personales'])
 res_sin_prestamos.write_csv("resultado_sin_prestamos.csv", separator=",")
+
