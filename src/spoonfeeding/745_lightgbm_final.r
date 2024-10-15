@@ -28,10 +28,10 @@ options(error = function() {
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento_data <- "PP7236_25_s1_sp_f04"
-PARAM$experimento_bayesiana <- "HT7246_25_s1_sp_f04"
+PARAM$experimento_data <- "PP7235_25_s1_sin_pres"
+PARAM$experimento_bayesiana <- "HT7245_dart"
 
-PARAM$experimento <- "KA7456_25_s1_sp_f04"
+PARAM$experimento <- "KA7456_dart4"
 
 # lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
@@ -61,8 +61,8 @@ action_limitar_memoria <- function( GB_min = 4 ) {
 #action_limitar_memoria( 4 )
 
 # Aqui empieza el programa
-# setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
-setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
+setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
+# setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
 # setwd("~/buckets/b1/exp/") # Establezco el Working Directory
 
 # genero las semillas con las que voy a trabajar
@@ -211,7 +211,7 @@ for( vrank in PARAM$bo_ranks ){
 
 
     # genero archivos para Kaggle
-    cortes <- seq(8000, 13000, by = 500)
+    cortes <- seq(8000, 15000, by = 500)
     for (envios in cortes) {
       tb_entrega[, Predicted := 0L]
       tb_entrega[1:envios, Predicted := 1L]

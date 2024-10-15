@@ -5,6 +5,7 @@ Created on Mon Oct 14 14:07:07 2024
 @author: jfgonzalez
 """
 
+import os
 import polars as pl
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter, MultipleLocator
@@ -68,7 +69,7 @@ def cargo_mes_testing(mes_test='202106'):
         columns=["numero_de_cliente", "clase_ternaria", "foto_mes"])
 
     # Filtrar por foto_mes == 202106
-    filtered_df = df_real.filter(pl.col("foto_mes") == 202106).select([
+    filtered_df = df_real.filter(pl.col("foto_mes") == mes_test).select([
         "numero_de_cliente",
         "clase_ternaria"])
 
@@ -81,17 +82,17 @@ def cargo_mes_testing(mes_test='202106'):
     return filtered_df
 
 
-def cargo_probabilidades_y_calculo_ganancia(df_test, experimento = 'KA7250_us_25'):
+def cargo_probabilidades_y_calculo_ganancia(df_test, experimento):
 
     try:
         # Intentar leer el archivo CSV
         df_prob = pl.read_csv(
-            f'./exp/{experimento}/prediccion.txt',
+            f'./exp/{experimento[1]}/{experimento[2]}',
             separator='\t',
             dtypes=[pl.Int64, pl.Int64, pl.Float64]
         ).select(["numero_de_cliente", "prob"])
 
-        print("Archivo cargado exitosamente.")
+        # print("Archivo cargado exitosamente.")
 
     except FileNotFoundError:
         print(f"Error: El archivo './exp/{experimento}/prediccion.txt' no se encontró.")
@@ -113,20 +114,6 @@ def cargo_probabilidades_y_calculo_ganancia(df_test, experimento = 'KA7250_us_25
     return joined_df
 
 
-
-# %%
-
-df_test = cargo_mes_testing(mes_test='202106')
-df_gan = cargo_probabilidades_y_calculo_ganancia(df_test, experimento = 'KA7250_us_25')
-plot_ganancia_x_linea_de_corte(df_gan['ganancia_acumulada'], experimento = 'KA7250_us_25')
-
-# %%
-
-import os
-
-
-
-# Función para buscar archivos que empiecen con 'predic' y terminen con '.txt'
 def buscar_archivos_predic_txt(directorio_base):
     rutas_encontradas = []
 
@@ -139,19 +126,17 @@ def buscar_archivos_predic_txt(directorio_base):
 
     return rutas_encontradas
 
-# Aún no se ha especificado el directorio
-directorio_base = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp'  # Reemplazar con la ruta real
-# buscar_archivos_predic_txt(directorio_base) # Este comando buscaría en el directorio
 
-# Por ahora solo mostramos la función para explorar la carpeta
-"Función lista para usarse una vez que se especifique el directorio"
-archivos_exp = buscar_archivos_predic_txt(directorio_base)
-archivos_exp
 
 # %%
 
-for exp in archivos_exp:
-    df_gan = cargo_probabilidades_y_calculo_ganancia(df_test, experimento = exp[1])
+df_test = cargo_mes_testing(mes_test=202106)
+
+directorio_base = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp' 
+archivos_exp = buscar_archivos_predic_txt(directorio_base)
+
+for exp in archivos_exp[-6:]:
+    df_gan = cargo_probabilidades_y_calculo_ganancia(df_test, experimento = exp)
     plot_ganancia_x_linea_de_corte(df_gan['ganancia_acumulada'], experimento = exp[1])
 
-df_gan[df_gan['ganancia_acumulada'].arg_max()][['prob', 'ganancia_acumulada']]
+

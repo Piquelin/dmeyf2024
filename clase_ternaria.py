@@ -10,8 +10,8 @@ import polars as pl
 import gzip
 import pandas as pd
 
-# dataset = pl.read_csv("competencia_01_crudo.csv", infer_schema_length=10000)
-dataset = pl.read_csv("datasets/competencia_02_crudo.csv.gz", infer_schema_length=500000)
+dataset = pl.read_csv("datasets/competencia_01_crudo.csv", infer_schema_length=10000)
+# dataset = pl.read_csv("datasets/competencia_02_crudo.csv.gz", infer_schema_length=500000)
 
 #%% pivoteo
 
@@ -85,14 +85,14 @@ resultado = dataset.join(
 
 # %% guardo
 
-# file_path = "./datasets/competencia_02.csv.gz"
+# file_path = "./datasets/competencia_01.csv.gz"
 
 # with gzip.open(file_path, 'wb') as f:
 #     resultado.lazy().collect().write_csv(f, separator=",")
 
 
-# resultado.write_csv('./datasets/competencia_02.csv', separator=",")
-# resultado.write_parquet("./datasets/competencia_02.parquet")
+# resultado.write_csv('./datasets/competencia_01.csv', separator=",")
+# resultado.write_parquet("./datasets/competencia_01.parquet")
 
 # %%
 clases_por_mes = []
