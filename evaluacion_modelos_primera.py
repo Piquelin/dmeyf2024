@@ -40,7 +40,7 @@ def plot_ganancia_x_linea_de_corte(ganancia_acumulada, experimento):
 
     # Limitar el rango de los ejes
     plt.xlim([0, 25000])
-    plt.ylim([0, max_y * 1.1])
+    plt.ylim([0, 120000000])
 
     # Título y etiquetas
     plt.title("Ganancia por línea de corte")
@@ -124,6 +124,8 @@ plot_ganancia_x_linea_de_corte(df_gan['ganancia_acumulada'], experimento = 'KA72
 
 import os
 
+
+
 # Función para buscar archivos que empiecen con 'predic' y terminen con '.txt'
 def buscar_archivos_predic_txt(directorio_base):
     rutas_encontradas = []
@@ -132,13 +134,24 @@ def buscar_archivos_predic_txt(directorio_base):
     for ruta_directorio, subdirectorios, archivos in os.walk(directorio_base):
         for archivo in archivos:
             if archivo.startswith('predic') and archivo.endswith('.txt'):
-                rutas_encontradas.append(os.path.join(ruta_directorio, archivo))
+                ruta = os.path.join(ruta_directorio, archivo).split('\\')
+                rutas_encontradas.append(ruta)
 
     return rutas_encontradas
 
 # Aún no se ha especificado el directorio
-directorio_base = '/ruta/al/directorio'  # Reemplazar con la ruta real
+directorio_base = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp'  # Reemplazar con la ruta real
 # buscar_archivos_predic_txt(directorio_base) # Este comando buscaría en el directorio
 
 # Por ahora solo mostramos la función para explorar la carpeta
 "Función lista para usarse una vez que se especifique el directorio"
+archivos_exp = buscar_archivos_predic_txt(directorio_base)
+archivos_exp
+
+# %%
+
+for exp in archivos_exp:
+    df_gan = cargo_probabilidades_y_calculo_ganancia(df_test, experimento = exp[1])
+    plot_ganancia_x_linea_de_corte(df_gan['ganancia_acumulada'], experimento = exp[1])
+
+df_gan[df_gan['ganancia_acumulada'].arg_max()][['prob', 'ganancia_acumulada']]
