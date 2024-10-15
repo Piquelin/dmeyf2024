@@ -34,7 +34,7 @@ options(error = function() {
 PARAM <- list()
 
 PARAM$experimento_data <- "PP7235_25_s1_sin_pres"
-PARAM$experimento <- "HT7245_quant"
+PARAM$experimento <- "HT7245_quant_dart"
 
 # 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799991 # Aqui poner su  primer  semilla
@@ -49,7 +49,7 @@ PARAM$hyperparametertuning$NEG_ganancia <- -7000
 
 # Hiperparametros FIJOS de  lightgbm
 PARAM$lgb_basicos <- list(
-  boosting = "gbdt" , #puede ir  dart  , ni pruebe random_forest
+  boosting = "dart" , #puede ir  dart  , ni pruebe random_forest
   objective = "binary",
   metric = "custom",
   first_metric_only = TRUE,
@@ -63,7 +63,7 @@ PARAM$lgb_basicos <- list(
   lambda_l1 = 0.0, # lambda_l1 >= 0.0
   lambda_l2 = 0.0, # lambda_l2 >= 0.0
   max_bin = 31L, # lo debo dejar fijo, no participa de la BO
-  num_iterations = 9999, # un numero muy grande, lo limita early_stopping_rounds
+  num_iterations = 1000, # un numero muy grande, lo limita early_stopping_rounds
   
   # bagging_freq = 0, # para que funcione tiene que ser mayor que 0
   # bagging_fraction = 1.0, # 0.0 < bagging_fraction <= 1.0
@@ -74,15 +74,15 @@ PARAM$lgb_basicos <- list(
   # scale_pos_weight = 1.0, # scale_pos_weight > 0.0
 
   # dart
-  # drop_rate = 0.1, # 0.0 < neg_bagging_fraction <= 1.0
-  # max_drop = 50, # <=0 means no limit
-  # skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
+  # drop_rate = 0.1, # 0.0 < drop_rate <= 1.0
+  max_drop = 50, # <=0 means no limit
+  skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
 
   extra_trees = TRUE, # Magic Sauce
   
-  use_quantized_grad = TRUE, # enabling this will discretize (quantize) the gradients and hessians into bins
-  # num_grad_quant_bins =  4, 
-  quant_train_renew_leaf = TRUE, # renewing is very helpful for good quantized training accuracy for ranking objectives
+  #use_quantized_grad = FALSE, # enabling this will discretize (quantize) the gradients and hessians into bins
+  #num_grad_quant_bins =  4, 
+  #quant_train_renew_leaf = TRUE, # renewing is very helpful for good quantized training accuracy for ranking objectives
   
 
   seed = PARAM$semilla_azar
@@ -100,8 +100,8 @@ PARAM$bo_lgb <- makeParamSet(
   # makeNumericParam("bagging_fraction", lower = 0.1, upper = 0.9),
   # makeNumericParam("neg_bagging_fraction", lower = 0.25, upper = 0.9)
   
-  # makeNumericParam("drop_rate", lower = 0.1, upper = 1.0),
-  makeIntegerParam("num_grad_quant_bins", lower = 3L, upper = 7L) #después estuve probando aumentar esto
+  makeNumericParam("drop_rate", lower = 0.8, upper = 1.0)
+  # makeIntegerParam("num_grad_quant_bins", lower = 3L, upper = 7L) #después estuve probando aumentar esto
   # makeNumericParam("lambda_l2", lower = 0.0, upper = 0.5)
 )
 
@@ -296,8 +296,8 @@ EstimarGanancia_lightgbm <- function(x) {
 # action_limitar_memoria( 4 )
 
 # setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
-setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
-# setwd("~/buckets/b1/exp/") # Establezco el Working Directory
+# setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
+setwd("~/buckets/b1/exp/") # Establezco el Working Directory
 
 # cargo el dataset donde voy a entrenar el modelo
 dataset <- fread(paste0(PARAM$experimento_data,"/dataset.csv.gz"))
