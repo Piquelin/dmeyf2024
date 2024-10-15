@@ -21,9 +21,14 @@ def plot_ganancia_x_linea_de_corte(ganancia_acumulada, experimento):
     def thousands_formatter(x, pos):
         return f'{x:,.0f}'
 
+    if experimento[2] != 'prediccion.txt':
+        serie = f'{experimento[1]}, mod_sem: {experimento[2][11:-4]}'
+    else:
+        serie = f'{experimento[1]}'
+
     # Graficar la suma acumulativa
-    plt.figure(figsize=(7, 3))
-    plt.plot(ganancia_acumulada, label=f"{experimento}", color='b', linewidth=1)
+    plt.figure(figsize=(10, 5))
+    plt.plot(ganancia_acumulada, label=f"{serie}", color='b', linewidth=1)
 
     # Aplicar el formateador de millones en el eje Y
     plt.gca().yaxis.set_major_formatter(FuncFormatter(millions_formatter))
@@ -89,7 +94,7 @@ def cargo_probabilidades_y_calculo_ganancia(df_test, experimento):
         df_prob = pl.read_csv(
             f'./exp/{experimento[1]}/{experimento[2]}',
             separator='\t',
-            dtypes=[pl.Int64, pl.Int64, pl.Float64]
+            schema_overrides=[pl.Int64, pl.Int64, pl.Float64]
         ).select(["numero_de_cliente", "prob"])
 
         # print("Archivo cargado exitosamente.")
@@ -127,16 +132,14 @@ def buscar_archivos_predic_txt(directorio_base):
     return rutas_encontradas
 
 
-
-# %%
+# %% MAIN
 
 df_test = cargo_mes_testing(mes_test=202106)
 
-directorio_base = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp' 
+# directorio_base = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp'
+directorio_base = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp'
 archivos_exp = buscar_archivos_predic_txt(directorio_base)
 
-for exp in archivos_exp[-6:]:
+for exp in archivos_exp:
     df_gan = cargo_probabilidades_y_calculo_ganancia(df_test, experimento = exp)
-    plot_ganancia_x_linea_de_corte(df_gan['ganancia_acumulada'], experimento = exp[1])
-
-
+    plot_ganancia_x_linea_de_corte(df_gan['ganancia_acumulada'], experimento = exp)
