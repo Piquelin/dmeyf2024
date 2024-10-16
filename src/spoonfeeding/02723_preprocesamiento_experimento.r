@@ -25,7 +25,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "PP7230_replica"
+PARAM$experimento <- "PP02723"
 
 PARAM$input$dataset <- "./datasets/competencia_01.csv"
 
@@ -40,14 +40,14 @@ PARAM$clase_minoritaria <- c("BAJA+1","BAJA+2")
 #  la magia estara en experimentar exhaustivamente
 PARAM$trainingstrategy$testing <- c(202104)
 PARAM$trainingstrategy$validation <- c(202103)
-PARAM$trainingstrategy$training <- c(202102)
+PARAM$trainingstrategy$training <- c(202102, 202101)
 
 # acá me tengo que meter si quiero hacer el loop
 PARAM$trainingstrategy$final_train <- c(202104,202103,202102)
 PARAM$trainingstrategy$future <- c(202106)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$training_undersampling <- 1.0
+PARAM$trainingstrategy$training_undersampling <- 0.25
 
 # esta aberracion fue creada a pedido de Joaquin Tschopp
 #  Publicamente Gustavo Denicolay NO se hace cargo de lo que suceda
@@ -375,7 +375,7 @@ dataset[, vm_mconsumosdolares := rowSums(cbind(Master_mconsumosdolares, Visa_mco
 dataset[, vm_mlimitecompra := rowSums(cbind(Master_mlimitecompra, Visa_mlimitecompra), na.rm = TRUE)]
 dataset[, vm_madelantopesos := rowSums(cbind(Master_madelantopesos, Visa_madelantopesos), na.rm = TRUE)]
 dataset[, vm_madelantodolares := rowSums(cbind(Master_madelantodolares, Visa_madelantodolares), na.rm = TRUE)]
-# dataset[, vm_fultimo_cierre := pmax(Master_fultimo_cierre, Visa_fultimo_cierre, na.rm = TRUE)]
+dataset[, vm_fultimo_cierre := pmax(Master_fultimo_cierre, Visa_fultimo_cierre, na.rm = TRUE)]
 dataset[, vm_mpagado := rowSums(cbind(Master_mpagado, Visa_mpagado), na.rm = TRUE)]
 dataset[, vm_mpagospesos := rowSums(cbind(Master_mpagospesos, Visa_mpagospesos), na.rm = TRUE)]
 dataset[, vm_mpagosdolares := rowSums(cbind(Master_mpagosdolares, Visa_mpagosdolares), na.rm = TRUE)]
