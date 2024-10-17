@@ -134,16 +134,16 @@ def buscar_archivos_predic_txt(directorio_base):
 
 # %% MAIN
 
-df_test = cargo_mes_testing(mes_test=202105)
+df_test = cargo_mes_testing(mes_test=202106)
 
 directorio_base = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp\\'
 # directorio_base = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp'
 archivos_exp = buscar_archivos_predic_txt(directorio_base)
-# %%
-for i, arch in enumerate(archivos_exp):
-    print(i, arch[1])
+# # %%
+# for i, arch in enumerate(archivos_exp):
+#     print(i, arch[1])
 
-archivos_exp = archivos_exp[30:59]
+# archivos_exp = archivos_exp[30:59]
 
 # %%
 for exp in archivos_exp:
