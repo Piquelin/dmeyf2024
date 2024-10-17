@@ -33,8 +33,8 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento_data <- "PP7230_replica"
-PARAM$experimento <- "HT7245_Guiye79_dart"
+PARAM$experimento_data <- "PP02723_us_ft_025"
+PARAM$experimento <- "HT7245_Guiye79_us_ft_025"
 
 # 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799991 # Aqui poner su  primer  semilla
@@ -49,7 +49,7 @@ PARAM$hyperparametertuning$NEG_ganancia <- -7000
 
 # Hiperparametros FIJOS de  lightgbm
 PARAM$lgb_basicos <- list(
-  boosting = "dart" , #puede ir  dart  , ni pruebe random_forest
+  boosting = "gbdt" , #puede ir  dart  , ni pruebe random_forest
   objective = "binary",
   metric = "custom",
   first_metric_only = TRUE,
@@ -74,15 +74,15 @@ PARAM$lgb_basicos <- list(
   # scale_pos_weight = 1.0, # scale_pos_weight > 0.0
 
   # dart
-  drop_rate = 0.1, # 0.0 < neg_bagging_fraction <= 1.0
-  max_drop = 50, # <=0 means no limit
-  skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
+  # drop_rate = 0.1, # 0.0 < neg_bagging_fraction <= 1.0
+  # max_drop = 50, # <=0 means no limit
+  # skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
 
   extra_trees = FALSE, # Magic Sauce
   
-  use_quantized_grad = FALSE, # enabling this will discretize (quantize) the gradients and hessians into bins
-  num_grad_quant_bins =  4,
-  quant_train_renew_leaf = TRUE, # renewing is very helpful for good quantized training accuracy for ranking objectives
+  # use_quantized_grad = FALSE, # enabling this will discretize (quantize) the gradients and hessians into bins
+  # num_grad_quant_bins =  4,
+  # quant_train_renew_leaf = TRUE, # renewing is very helpful for good quantized training accuracy for ranking objectives
   
 
   seed = PARAM$semilla_azar

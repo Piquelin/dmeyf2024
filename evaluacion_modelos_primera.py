@@ -134,12 +134,18 @@ def buscar_archivos_predic_txt(directorio_base):
 
 # %% MAIN
 
-df_test = cargo_mes_testing(mes_test=202106)
+df_test = cargo_mes_testing(mes_test=202105)
 
-directorio_base = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp'
+directorio_base = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp\\'
 # directorio_base = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp'
 archivos_exp = buscar_archivos_predic_txt(directorio_base)
+# %%
+for i, arch in enumerate(archivos_exp):
+    print(i, arch[1])
 
+archivos_exp = archivos_exp[30:59]
+
+# %%
 for exp in archivos_exp:
     df_gan = cargo_probabilidades_y_calculo_ganancia(df_test, experimento = exp)
     plot_ganancia_x_linea_de_corte(df_gan['ganancia_acumulada'], experimento = exp)

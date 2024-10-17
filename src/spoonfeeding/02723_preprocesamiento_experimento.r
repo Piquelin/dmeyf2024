@@ -25,7 +25,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "PP02723"
+PARAM$experimento <- "PP02723_us_ft_025"
 
 PARAM$input$dataset <- "./datasets/competencia_01.csv"
 
@@ -52,7 +52,7 @@ PARAM$trainingstrategy$training_undersampling <- 0.25
 # esta aberracion fue creada a pedido de Joaquin Tschopp
 #  Publicamente Gustavo Denicolay NO se hace cargo de lo que suceda
 #   si se asigna un valor menor a 1.0
-PARAM$trainingstrategy$finaltrain_undersampling <- 1.0
+PARAM$trainingstrategy$finaltrain_undersampling <- 0.25
 
 #------------------------------------------------------------------------------
 # limita el uso de memoria RAM a  Total_hardware - GB_min
