@@ -7,13 +7,17 @@ Created on Mon Sep 30 13:06:29 2024
 import re
 import numpy as np
 import polars as pl
+import time
+
+
+# Inicia el temporizador
+start_time = time.time()
 
 
 # %%
 
-workin_dir =('C:/Users/jfgonzalez/Documents/documentación_maestría/' +
-             'economía_y_finanzas/')
-archivo_datos = './datasets/competencia_02.parquet'
+
+archivo_datos = '../datasets/competencia_02.parquet'
 
 # # creo la carpeta donde va el experimento
 # dir.create("./exp/", showWarnings = FALSE)
@@ -49,11 +53,12 @@ PARAM['trainingstrategy'] = {
     'finaltrain_undersampling': 0.25
 }
 
-
+antes_de_leer = time.time()
+print('antes_de_leer', antes_de_leer-start_time )
 competencia_02 = pl.read_parquet(archivo_datos)
 
 
-#%%
+# %% funciones
 
 def busco_inflacion(ultimo_mes='10_24', inicio="2019-01-01", fin="2021-08-01"):
     '''
@@ -61,65 +66,68 @@ def busco_inflacion(ultimo_mes='10_24', inicio="2019-01-01", fin="2021-08-01"):
     '''
     PATH = ('https://www.indec.gob.ar/ftp/cuadros/economia/' +
             f'sh_ipc_{ultimo_mes}.xls')
-    
+
     ipc_nac = pl.read_excel(PATH, sheet_name='Variación mensual IPC Nacional',
                             read_options={"skip_rows": 0, "header_row":4,
                                           "n_rows":30, } )
-   
+
     new_columns = ipc_nac.row(0)  # primera fila como encabezado
     # ipc_nac = ipc_nac.slice(2)  # eliminar la primera fila
-    
+
     meses = pl.DataFrame(pl.Series(new_columns[1:])
                          .str.strptime(pl.Date, "%F %T", strict=False))
-    
+
     ipc_df = pl.concat([meses, ipc_nac[3,1:].transpose()], how='horizontal')
     ipc_df.columns = (['mes', 'IPC'])
 
-    
-    
+
+
     # Filtrar el rango de fechas
     ipc_df = ipc_df.filter(
-        (pl.col('mes') >= pl.lit(inicio).str.strptime(pl.Date, "%Y-%m-%d")) & 
+        (pl.col('mes') >= pl.lit(inicio).str.strptime(pl.Date, "%Y-%m-%d")) &
         (ipc_df['mes'] <= pl.lit(fin).str.strptime(pl.Date, "%Y-%m-%d"))
     )
-    
-    
+
+
     return ipc_df
 
 
 def obtener_campos_monetarios(dataset):
     # Obtener los nombres de las columnas del dataset
     columnas = dataset.columns  # o dataset if ya es una lista de columnas
-    
+
     # Definir la expresión regular
     pattern = r"^(m|Visa_m|Master_m|vm_m)"
-    
+
     # Filtrar las columnas que coinciden con la expresión regular
     campos_monetarios = [col for col in columnas if re.match(pattern, col)]
-    
+
     return campos_monetarios
 
 
-def corregir_rotas(df): # AKA AsignarNA_campomeses (catástrofe)
+def corregir_rotas(df):  # AKA AsignarNA_campomeses (catástrofe)
     # Obtiene la lista de meses únicos
     meses = df['foto_mes'].unique().to_list()
-    
+
     # Recorre los meses
     listadfs = []
     for mes in meses:
         df_mes = df.filter(pl.col("foto_mes") == mes)
-        
+
         # Verifica qué columnas tienen todos ceros excepto 'foto_mes' y 'clase_ternaria'
         todo_cero_mask = df_mes.select(pl.all().exclude("foto_mes", "clase_ternaria").cast(pl.Float64).sum() == 0).row(0)
         todo_cero_mask = (False,) + todo_cero_mask + (False,)
         cols_cero = [col for col, is_cero in zip(df_mes.columns, todo_cero_mask) if is_cero]
-        
+
         # Asigna None a esas columnas
-        df_mes = df_mes.with_columns([pl.when(pl.col(col).is_not_null()).then(None).otherwise(pl.col(col)).alias(col) for col in cols_cero])
-        
+        df_mes = df_mes.with_columns([pl.when(pl.col(col)
+                                              .is_not_null()).then(None)
+                                      .otherwise(pl.col(col))
+                                      .alias(col) for col in cols_cero])
+
         print('del mes', mes, 'reemplazamos las columnas', cols_cero)
         listadfs.append(df_mes)
-    
+
     # Concatenar todos los dataframes de meses
     resultado_final = pl.concat(listadfs)
     return resultado_final
@@ -127,12 +135,13 @@ def corregir_rotas(df): # AKA AsignarNA_campomeses (catástrofe)
 
 def arreglo_infinitos(polars_dataset):
     columns = obtener_campos_monetarios(polars_dataset)
-        
+
     columns_with_infinity = [
-        col for col in columns if polars_dataset.select(pl.col(col).is_infinite().any()).to_numpy()[0][0]
+        col for col in columns if polars_dataset
+        .select(pl.col(col).is_infinite().any()).to_numpy()[0][0]
     ]
     print('Encontre estas columnas con infinitos:\n', columns_with_infinity)
-    
+
     # Reemplazar valores infinitos por null en cada columna
     polars_dataset = polars_dataset.with_columns([
         pl.when(pl.col(col).is_infinite())
@@ -143,7 +152,8 @@ def arreglo_infinitos(polars_dataset):
     ])
     return polars_dataset
 
-# Suma de columnas (usando na.rm equivalente, pl.sum() ignora valores nulos automáticamente)
+
+# Suma de columnas (usando na.rm equivalente)
 def sumas_max_min(competencia_02):
     # Suma de columnas y mínimo/máximo
     competencia_02 = competencia_02.with_columns([
@@ -191,7 +201,7 @@ def ratios_varios(competencia_02):
         (pl.col("vm_mpagominimo") / pl.col("vm_mlimitecompra")).alias("vmr_mpagominimo"),
         (pl.col("mpayroll") / pl.col("cliente_edad")).alias("mpayroll_sobre_edad")  # Calcular mpayroll_sobre_edad
     ])
-    
+
     arreglo_infinitos(competencia_02)
     return competencia_02
 
@@ -200,25 +210,24 @@ def lags_y_deltalags(dataset, campitos = ["numero_de_cliente", "foto_mes", "clas
     # campitos =  Columnas no lagueables
     # Columnas a las que les aplicaremos los lags
     cols_lagueables = [col for col in dataset.columns if col not in campitos]
-    
+
     # Filtrar columnas de tipo string
     string_cols = [col for col in dataset.columns if dataset[col].dtype == pl.Utf8]
     # Excluir columnas de tipo string de cols_lagueables
     cols_lagueables = [col for col in cols_lagueables if col not in string_cols]
 
+    # Ordenamos el dataset por numero_de_cliente y foto_mes
+    dataset = dataset.sort(["numero_de_cliente", "foto_mes"])
 
     # Ordenamos el dataset por numero_de_cliente y foto_mes
     dataset = dataset.sort(["numero_de_cliente", "foto_mes"])
-    
-    # Ordenamos el dataset por numero_de_cliente y foto_mes
-    dataset = dataset.sort(["numero_de_cliente", "foto_mes"])
-    
+
     # Creamos los lags de orden 1
     dataset = dataset.with_columns([
         pl.col(col).shift(1).over("numero_de_cliente").alias(f"{col}_lag1")
         for col in cols_lagueables
     ])
-    
+
     # Agregamos los delta lags de orden 1
     dataset = dataset.with_columns([
         (pl.col(col) - pl.col(f"{col}_lag1")).alias(f"{col}_delta1")
@@ -227,8 +236,8 @@ def lags_y_deltalags(dataset, campitos = ["numero_de_cliente", "foto_mes", "clas
     return dataset
 
 
+#  part_future, part_validation, part_testing y part_training
 def armo_particiones(dataset, PARAM):
-    # Crear las nuevas columnas part_future, part_validation, part_testing y part_training
     # Inicializamos con 0
     dataset = dataset.with_columns([
         pl.lit(0).alias("part_future"),
@@ -237,28 +246,28 @@ def armo_particiones(dataset, PARAM):
         pl.lit(0).alias("part_training"),
         pl.lit(0).alias("part_final_train")
     ])
-    
+
     # Actualizamos las columnas según las condiciones dadas
     dataset = dataset.with_columns([
         pl.when(pl.col("foto_mes").is_in(PARAM["trainingstrategy"]["future"]))
         .then(1)
         .otherwise(pl.col("part_future")).alias("part_future"),
-        
+
         pl.when(pl.col("foto_mes").is_in(PARAM["trainingstrategy"]["validation"]))
         .then(1)
         .otherwise(pl.col("part_validation")).alias("part_validation"),
-    
+
         pl.when(pl.col("foto_mes").is_in(PARAM["trainingstrategy"]["testing"]))
         .then(1)
         .otherwise(pl.col("part_testing")).alias("part_testing")
     ])
-    
+
     # Generar una columna de azar (números aleatorios)
     np.random.seed(PARAM["semilla_azar"])
     dataset = dataset.with_columns([
         pl.lit(np.random.uniform(size=dataset.shape[0])).alias("azar")
     ])
-    
+
     # Crear la columna part_training con condiciones adicionales
     dataset = dataset.with_columns([
         pl.when(
@@ -269,7 +278,7 @@ def armo_particiones(dataset, PARAM):
             )
         ).then(1).otherwise(0).alias("part_training")
     ])
-    
+
     # Crear la columna part_final_train con condiciones adicionales
     dataset = dataset.with_columns([
         pl.when(
@@ -280,11 +289,12 @@ def armo_particiones(dataset, PARAM):
             )
         ).then(1).otherwise(0).alias("part_final_train")
     ])
-    
+
     # Eliminar la columna "azar" que ya no se usa
     dataset = dataset.drop("azar")
-    
+
     return dataset
+
 
 def ctrx_quarter_normalizado(competencia_02):
     # Aplicar las condiciones
@@ -320,13 +330,14 @@ def ctrx_quarter_normalizado(competencia_02):
 
 # vdolar_oficial = [ 91.474000,  93.997778,  96.635909,
 #                   98.526000,  99.613158, 100.619048]
-  
+
 # vUVA = [  0.9669867858358365, 0.9323750098728378, 0.8958202912590305,
 #         0.8631993702994263, 0.8253893405524657, 0.7928918905364516 ]
 
 
-#%% corrigo caatstrofes
-
+# %% corrigo caatstrofes
+antes_de_correcciones = time.time()
+print('antes_de_correcciones', antes_de_correcciones-start_time )
 competencia_02 = corregir_rotas(competencia_02)
 
 # %% aqui aplico un metodo para atacar el data drifting
@@ -348,11 +359,19 @@ competencia_02 = sumas_max_min(competencia_02)
 competencia_02 = ratios_varios(competencia_02)
 
 # %% lags_y_deltalags
-
+antes_de_lags = time.time()
+print('antes_de_lags', antes_de_lags-start_time )
 competencia_var = lags_y_deltalags(competencia_02)
 
 # %%
 
 competencia_02 = armo_particiones(competencia_02, PARAM)
+antes_de_guardar = time.time()
+print('antes_de_guardar', antes_de_guardar-start_time )
+competencia_02.write_parquet('./datasets/dataset02_py.parquet')
 
-competencia_02.write_parquet('./datasets/dataset02.parquet')
+
+# Calcula el tiempo de ejecución
+end_time = time.time()
+execution_time = end_time - start_time
+print('execution_time', execution_time)
