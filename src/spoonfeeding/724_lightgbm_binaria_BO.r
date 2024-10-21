@@ -88,8 +88,8 @@ PARAM$bo_lgb <- makeParamSet(
   makeNumericParam("learning_rate", lower = 0.02, upper = 0.1),
   makeNumericParam("feature_fraction", lower = 0.1, upper = 1.0),
   makeIntegerParam("num_leaves", lower = 500L, upper = 4096L),
-  makeIntegerParam("min_data_in_leaf", lower = 1000L, upper = 10000L)
-  makeNumericParam("drop_rate", lower = 0.1, upper = 1.0),
+  makeIntegerParam("min_data_in_leaf", lower = 1000L, upper = 10000L),
+  makeNumericParam("drop_rate", lower = 0.1, upper = 1.0)
   # makeIntegerParam("num_grad_quant_bins", lower = 3L, upper = 7L)
   # makeNumericParam("lambda_l2", lower = 0.0, upper = 0.5)
 )
