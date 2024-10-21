@@ -368,7 +368,7 @@ competencia_var = lags_y_deltalags(competencia_02)
 competencia_02 = armo_particiones(competencia_02, PARAM)
 antes_de_guardar = time.time()
 print('antes_de_guardar', antes_de_guardar-start_time )
-competencia_02.write_parquet('./datasets/dataset02_py.parquet')
+competencia_02.write_parquet('../datasets/dataset02_pp_py.parquet')
 
 
 # Calcula el tiempo de ejecución
