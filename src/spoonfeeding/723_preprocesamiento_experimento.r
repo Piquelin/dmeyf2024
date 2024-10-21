@@ -25,9 +25,9 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "PP7235_25_s1_sin_pres"
+PARAM$experimento <- "PP7230_replica"
 
-PARAM$input$dataset <- "./datasets/resultado_sin_prestamos.csv"
+PARAM$input$dataset <- "./datasets/competencia_01.csv"
 
 # lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
@@ -47,7 +47,7 @@ PARAM$trainingstrategy$final_train <- c(202104,202103,202102)
 PARAM$trainingstrategy$future <- c(202106)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$training_undersampling <- 0.25
+PARAM$trainingstrategy$training_undersampling <- 1.0
 
 # esta aberracion fue creada a pedido de Joaquin Tschopp
 #  Publicamente Gustavo Denicolay NO se hace cargo de lo que suceda
@@ -264,8 +264,8 @@ tb_indices$foto_mes <- vfoto_mes
 
 tb_indices
 
-setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/")
-# setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/")
+# setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/")
+setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/")
 # setwd("~/buckets/b1/") # Establezco el Working Directory
 
 # cargo el dataset donde voy a entrenar el modelo
@@ -341,6 +341,28 @@ dataset[
 dataset[, mpayroll_sobre_edad := mpayroll / cliente_edad]
 
 
+# En un mundo prolijo, estas variables se eliminan
+#  durante la creacion del dataset
+# https://www.youtube.com/watch?v=eitDnP0_83k
+dataset[, cprestamos_personales := NULL ]
+# dataset[, cprestamos_personales_lag1 := NULL ]
+# dataset[, cprestamos_personales_delta1 := NULL ]
+
+dataset[, mprestamos_personales := NULL ]
+# dataset[, mprestamos_personales_lag1 := NULL ]
+# dataset[, mprestamos_personales_delta1 := NULL ]
+
+dataset[, cplazo_fijo := NULL ]
+# dataset[, cplazo_fijo_lag1 := NULL ]
+# dataset[, cplazo_fijo_delta1 := NULL ]
+
+dataset[, ctarjeta_debito := NULL ]
+# dataset[, ctarjeta_debito_lag1 := NULL ]
+# dataset[, ctarjeta_debito_delta1 := NULL ]
+
+
+
+
 # Por supuesto, usted puede COMENTARIAR todo lo que desee
 dataset[, vm_mfinanciacion_limite := rowSums(cbind(Master_mfinanciacion_limite, Visa_mfinanciacion_limite), na.rm = TRUE)]
 dataset[, vm_Fvencimiento := pmin(Master_Fvencimiento, Visa_Fvencimiento, na.rm = TRUE)]
@@ -411,10 +433,10 @@ nans <- lapply(
 #    "ATENCION, hay", nans_qty,
 #    "valores NaN 0/0 en tu dataset. Seran pasados arbitrariamente a 0\n"
 #  )
-
+#
 #  cat("Si no te gusta la decision, modifica a gusto el programa!\n\n")
 #  dataset[mapply(is.nan, dataset)] <- 0
-#}
+# }
 
 
 

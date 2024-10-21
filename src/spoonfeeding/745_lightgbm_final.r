@@ -28,17 +28,17 @@ options(error = function() {
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento_data <- "PP7236_25_s1_sp_f04"
-PARAM$experimento_bayesiana <- "HT7246_25_s1_sp_f04"
+PARAM$experimento_data <- "PP02723_us_ft_025"
+PARAM$experimento_bayesiana <- "HT7245_Guiye79_us_ft_025"
 
-PARAM$experimento <- "KA7456_25_s1_sp_f04"
+PARAM$experimento <- "KA7450_Guiye79_may_us_ft_025"
 
 # lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
 PARAM$semilla_azar <- 799891 # Aqui poner su  primer  semilla
-PARAM$semillas_cantidad <- 3
+PARAM$semillas_cantidad <- 5
 
 # c(1,2) son el mejor y el segundo mejor de la bayesian optimization
-PARAM$bo_ranks <- c(1, 2 )
+PARAM$bo_ranks <- c(1, 2, 3, 4, 5, 6)
 
 #------------------------------------------------------------------------------
 # limita el uso de memoria RAM a  Total_hardware - GB_min
@@ -61,8 +61,8 @@ action_limitar_memoria <- function( GB_min = 4 ) {
 #action_limitar_memoria( 4 )
 
 # Aqui empieza el programa
-# setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
-setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
+setwd("C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/")
+# setwd("E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/")
 # setwd("~/buckets/b1/exp/") # Establezco el Working Directory
 
 # genero las semillas con las que voy a trabajar
@@ -78,32 +78,12 @@ tb_BO_log <- fread(paste0(PARAM$experimento_bayesiana,"/BO_log.txt"))
 # cargo el dataset donde voy a entrenar el modelo
 dataset <- fread(paste0(PARAM$experimento_data,"/dataset.csv.gz"))
 
-# En un mundo prolijo, estas variables se eliminan
-#  durante la creacion del dataset
-# https://www.youtube.com/watch?v=eitDnP0_83k
-dataset[, cprestamos_personales := NULL ]
-dataset[, cprestamos_personales_lag1 := NULL ]
-dataset[, cprestamos_personales_delta1 := NULL ]
-
-dataset[, mprestamos_personales := NULL ]
-dataset[, mprestamos_personales_lag1 := NULL ]
-dataset[, mprestamos_personales_delta1 := NULL ]
-
-dataset[, cplazo_fijo := NULL ]
-dataset[, cplazo_fijo_lag1 := NULL ]
-dataset[, cplazo_fijo_delta1 := NULL ]
-
-dataset[, ctarjeta_debito := NULL ]
-dataset[, ctarjeta_debito_lag1 := NULL ]
-dataset[, ctarjeta_debito_delta1 := NULL ]
-
 
 # creo la carpeta donde va el experimento
 dir.create(paste0(PARAM$experimento, "/"), showWarnings = FALSE)
 
 # Establezco el Working Directory DEL EXPERIMENTO
 setwd(paste0("./", PARAM$experimento, "/"))
-
 
 
 # paso la clase a binaria que tome valores {0,1}  enteros
@@ -209,24 +189,24 @@ for( vrank in PARAM$bo_ranks ){
     # ordeno por probabilidad descendente
     setorder(tb_entrega, -prob)
 
-
-    # genero archivos para Kaggle
-    cortes <- seq(8000, 13000, by = 500)
-    for (envios in cortes) {
-      tb_entrega[, Predicted := 0L]
-      tb_entrega[1:envios, Predicted := 1L]
-
-      nom_arch <- paste0(PARAM$experimento, "_",
-        vrank, "_",
-        vsemilla, "_",
-        envios, ".csv"
-      )
-
-      fwrite( tb_entrega[, list(numero_de_cliente, Predicted)],
-         file = nom_arch,
-         sep = ","
-      )
-    }
+# 
+#     # genero archivos para Kaggle
+#     cortes <- seq(8000, 15000, by = 500)
+#     for (envios in cortes) {
+#       tb_entrega[, Predicted := 0L]
+#       tb_entrega[1:envios, Predicted := 1L]
+# 
+#       nom_arch <- paste0(PARAM$experimento, "_",
+#         vrank, "_",
+#         vsemilla, "_",
+#         envios, ".csv"
+#       )
+# 
+#       fwrite( tb_entrega[, list(numero_de_cliente, Predicted)],
+#          file = nom_arch,
+#          sep = ","
+#       )
+#     }
 
   }
 
