@@ -450,7 +450,7 @@ wf_pajaritos <- function( pnombrewf )
     mtry_ratio= 0.2
   )
 
-  #CN_canaritos_asesinos_base(ratio=0.2, desvio=4.0)
+  CN_canaritos_asesinos_base(ratio=0.2, desvio=4.0)
 
   # Etapas modelado
   ts8 <- TS_strategy_base8()
