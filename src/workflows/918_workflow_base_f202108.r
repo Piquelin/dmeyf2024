@@ -339,16 +339,26 @@ HT_tuning_base <- function( pinputexps, bo_iteraciones, bypass=FALSE)
     drop_rate = 0.1, # 0.0 < neg_bagging_fraction <= 1.0
     max_drop = 50, # <=0 means no limit
     skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
+    
+    
+    # quantized
+    use_quantized_grad = TRUE, # enabling this will discretize (quantize) the gradients and hessians into bins
+    num_grad_quant_bins =  4,
+    quant_train_renew_leaf = TRUE,
 
     extra_trees = FALSE,
+    
     # Parte variable
     learning_rate = c( 0.02, 0.3 ),
     feature_fraction = c( 0.5, 0.9 ),
-    num_leaves = c( 8L, 2048L,  "integer" ),
-    min_data_in_leaf = c( 100L, 10000L, "integer" )
+    num_leaves = c( 500L, 4096L,  "integer" ),
+    min_data_in_leaf = c( 1000L, 10000L, "integer" )
+    
+    
   )
 
 
+  
   # iteraciones de la Optimizacion Bayesiana
   param_local$bo_iteraciones <- bo_iteraciones
 
@@ -421,7 +431,7 @@ KA_evaluate_kaggle <- function( pinputexps )
 # Este es el  Workflow Baseline
 # Que predice 202108 donde NO conozco la clase
 
-wf_agosto_base <- function( pnombrewf )
+wf_juan_quant <- function( pnombrewf )
 {
   param_local <- exp_wf_init( pnombrewf ) # linea workflow inicial fija
 
@@ -458,5 +468,5 @@ wf_agosto_base <- function( pnombrewf )
 # Aqui comienza el programa
 
 # llamo al workflow con future = 202108
-wf_agosto_base()
+wf_juan_quant()
 
