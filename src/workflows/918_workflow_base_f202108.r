@@ -457,7 +457,7 @@ wf_juan_quant <- function( pnombrewf )
   ht <- HT_tuning_base( bo_iteraciones = 40 )  # iteraciones inteligentes
 
   # Etapas finales
-  fm <- FM_final_models_lightgbm( c(ht, ts8), ranks=c(1), qsemillas=5 )
+  fm <- FM_final_models_lightgbm( c(ht, ts8), ranks=c(1,2,3), qsemillas=5 )
   SC_scoring( c(fm, ts8) )
   KA_evaluate_kaggle()  # genera archivos para Kaggle
 
