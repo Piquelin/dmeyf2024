@@ -137,7 +137,7 @@ FEhist_base <- function( pinputexps)
 
   param_local$lag1 <- TRUE
   param_local$lag2 <- FALSE # no me engraso con los lags de orden 2
-  param_local$lag3 <- FALSE # no me engraso con los lags de orden 3
+  param_local$lag3 <- TRUE # no me engraso con los lags de orden 3
 
   # no me engraso las manos con las tendencias
   param_local$Tendencias1$run <- TRUE  # FALSE, no corre nada de lo que sigue
@@ -277,13 +277,13 @@ TS_strategy_base8 <- function( pinputexps )
 
 
   param_local$train$training <- c(202104, 202103, 202102,
-    202101, 202012, 202011)
+    202101, 202012, 202011, 202010)
   param_local$train$validation <- c(202105)
   param_local$train$testing <- c(202106)
 
   # Atencion  0.2  de  undersampling de la clase mayoritaria,  los CONTINUA
   # 1.0 significa NO undersampling
-  param_local$train$undersampling <- 0.2
+  param_local$train$undersampling <- 0.1
   param_local$train$clase_minoritaria <- c( "BAJA+1", "BAJA+2")
 
   return( exp_correr_script( param_local ) ) # linea fija
@@ -328,7 +328,7 @@ HT_tuning_base <- function( pinputexps, bo_iteraciones, bypass=FALSE)
     lambda_l1 = 0.0, # lambda_l1 >= 0.0
     lambda_l2 = 0.0, # lambda_l2 >= 0.0
     max_bin = 31L, # lo debo dejar fijo, no participa de la BO
-    num_iterations = 300, # un numero muy grande, lo limita early_stopping_rounds
+    num_iterations = 9999, # un numero muy grande, lo limita early_stopping_rounds
 
     bagging_fraction = 1.0, # 0.0 < bagging_fraction <= 1.0
     pos_bagging_fraction = 1.0, # 0.0 < pos_bagging_fraction <= 1.0
@@ -346,7 +346,7 @@ HT_tuning_base <- function( pinputexps, bo_iteraciones, bypass=FALSE)
     # num_grad_quant_bins =  4,
     # quant_train_renew_leaf = TRUE,
 
-    extra_trees = FALSE,
+    extra_trees = TRUE,
     
     # Parte variable
     learning_rate = c( 0.02, 0.3 ),
@@ -444,13 +444,13 @@ wf_corto <- function( pnombrewf )
   DR_drifting_base(metodo="rank_cero_fijo")
   FEhist_base()
 
-  FErf_attributes_base( arbolitos= 20,
-    hojas_por_arbol= 16,
-    datos_por_hoja= 1000,
+  FErf_attributes_base( arbolitos= 30,
+    hojas_por_arbol= 10,
+    datos_por_hoja= 500,
     mtry_ratio= 0.2
   )
 
-  # CN_canaritos_asesinos_base(ratio=0.2, desvio=4.0)
+  CN_canaritos_asesinos_base(ratio=0.2, desvio=-4.0)
 
   # Etapas modelado
   ts8 <- TS_strategy_base8()
