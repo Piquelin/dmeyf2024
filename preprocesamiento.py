@@ -60,6 +60,7 @@ competencia_02 = pl.read_parquet(archivo_datos)
 
 # %% funciones
 
+
 def busco_inflacion(ultimo_mes='10_24', inicio="2019-01-01", fin="2021-08-01"):
     '''
     ultimo mes: MM_AA
