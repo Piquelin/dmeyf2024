@@ -163,6 +163,14 @@ for ( irank in ranks ) {
   )
 
   pdf(arch_grafico)
+  
+  titulo <- paste0(
+    "Mejor gan prom ",
+    sprintf("%02d", irank),
+    "_",
+    sprintf("%03d", tb_predicciones[ rank==irank, min( iteracion_bayesiana )]),
+    " = "
+  )
 
   plot(
     x = tb_ganancias[envios >= envg$PARAM$graficar$envios_desde, envios],
@@ -171,7 +179,7 @@ for ( irank in ranks ) {
     col = "gray",
     xlim = c(envg$PARAM$graficar$envios_desde, envg$PARAM$graficar$envios_hasta),
     ylim = c(ymin, ymax),
-    main = paste0("Mejor gan prom = ", as.integer(ganancia_suavizada_max)),
+    main = paste0( titulo, as.integer(ganancia_suavizada_max)),
     xlab = "Envios",
     ylab = "Ganancia",
     panel.first = grid()
