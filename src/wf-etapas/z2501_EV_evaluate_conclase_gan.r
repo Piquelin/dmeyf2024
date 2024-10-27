@@ -184,6 +184,11 @@ for ( irank in ranks ) {
     ylab = "Ganancia",
     panel.first = grid()
   )
+  
+  # Define el eje Y en millones con tres decimales
+  axis(2, 
+       at = pretty(c(ymin, ymax)), 
+       labels = sprintf("%.3f", pretty(c(ymin, ymax)) / 1e6))
 
   # las siguientes curvas
   if ( length(isems) > 1) {
