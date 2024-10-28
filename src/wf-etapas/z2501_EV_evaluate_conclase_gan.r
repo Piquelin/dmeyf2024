@@ -182,6 +182,7 @@ for ( irank in ranks ) {
     main = paste0( titulo, as.integer(ganancia_suavizada_max)),
     xlab = "Envios",
     ylab = "Ganancia",
+    yaxt = "n",  # Desactiva el eje Y predeterminado
     panel.first = grid()
   )
   
