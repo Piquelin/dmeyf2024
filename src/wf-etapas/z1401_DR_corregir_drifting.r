@@ -279,7 +279,7 @@ switch(envg$PARAM$metodo,
   "dolar_blue"       = drift_dolarblue(campos_monetarios),
   "dolar_oficial"    = drift_dolaroficial(campos_monetarios),
   "UVA"              = drift_UVA(campos_monetarios),
-  "estandarizar"     = drift_estandarizar(campos_monetarios)
+  "estandarizar"     = drift_estandarizar(campos_monetarios),
   "pollo-parrillero" = drift_IPP(campos_monetarios)
 )
 
