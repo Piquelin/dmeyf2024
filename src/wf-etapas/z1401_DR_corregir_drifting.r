@@ -94,6 +94,35 @@ vUVA <- c(
   0.7666323845128089, 0.7428976357662823, 0.721615762047849
 )
 
+
+vIPP <- c(
+  456.4, 463.8, 478.5, 
+  502.9, 518.4, 547.3, 
+  541.2, 606.9, 646.5, 
+  663.5, 678.3, 688.4,
+  689.0, 748.9, 764.6,
+  784.7, 801.4, 827.0,
+  836.7, 845.7, 855.4,
+  901.9, 940.4, 967.7,
+  984.9, 1075.5, 1127.8,
+  1140.1, 1148.1, 1223.0,
+  1239.4, 1269.2, 1308.7
+)
+
+#------------------------------------------------------------------------------
+
+drift_IPP <- function(campos_monetarios) {
+  cat( "inicio drift_IPP()\n")
+  
+  dataset[tb_indices,
+          on = c(envg$PARAM$dataset_metadata$periodo),
+          (campos_monetarios) := .SD * i.IPP,
+          .SDcols = campos_monetarios
+  ]
+  
+  cat( "fin drift_IPP()\n")
+}
+
 #------------------------------------------------------------------------------
 
 drift_UVA <- function(campos_monetarios) {
@@ -216,7 +245,8 @@ tb_indices <- as.data.table( list(
   "IPC" = vIPC,
   "dolar_blue" = vdolar_blue,
   "dolar_oficial" = vdolar_oficial,
-  "UVA" = vUVA
+  "UVA" = vUVA,
+  "IPP" = vIPP
   )
 )
 tb_indices[[ envg$PARAM$dataset_metadata$periodo ]] <- vfoto_mes
@@ -242,14 +272,15 @@ campos_monetarios <- campos_monetarios[campos_monetarios %like%
 # aqui aplico un metodo para atacar el data drifting
 # hay que probar experimentalmente cual funciona mejor
 switch(envg$PARAM$metodo,
-  "ninguno"        = cat("No hay correccion del data drifting"),
-  "rank_simple"    = drift_rank_simple(campos_monetarios),
-  "rank_cero_fijo" = drift_rank_cero_fijo(campos_monetarios),
-  "deflacion"      = drift_deflacion(campos_monetarios),
-  "dolar_blue"     = drift_dolarblue(campos_monetarios),
-  "dolar_oficial"  = drift_dolaroficial(campos_monetarios),
-  "UVA"            = drift_UVA(campos_monetarios),
-  "estandarizar"   = drift_estandarizar(campos_monetarios)
+  "ninguno"          = cat("No hay correccion del data drifting"),
+  "rank_simple"      = drift_rank_simple(campos_monetarios),
+  "rank_cero_fijo"   = drift_rank_cero_fijo(campos_monetarios),
+  "deflacion"        = drift_deflacion(campos_monetarios),
+  "dolar_blue"       = drift_dolarblue(campos_monetarios),
+  "dolar_oficial"    = drift_dolaroficial(campos_monetarios),
+  "UVA"              = drift_UVA(campos_monetarios),
+  "estandarizar"     = drift_estandarizar(campos_monetarios)
+  "pollo-parrillero" = drift_IPP(campos_monetarios)
 )
 
 
