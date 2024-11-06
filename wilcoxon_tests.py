@@ -7,7 +7,7 @@ Created on Tue Nov  5 11:33:35 2024
 
 import pandas as pd
 from scipy.stats import wilcoxon
-import numpy as np
+# import numpy as np
 
 # %%
 
@@ -126,3 +126,26 @@ def calcular_cortes_y_promedios(basepath, file):
     return ganancias
 
 ganancias = calcular_cortes_y_promedios(basepath, file)
+
+del i
+
+
+df_graf = ganancias.iloc[8000:16000]
+
+df_graf.columns
+
+modelo = 1
+
+import matplotlib.pyplot as plt
+
+ax = plt.plot(df_graf.iloc[:, 0:20], c='grey', alpha=0.5)
+plt.plot(df_graf.iloc[:,61], c='red', alpha=1,)
+
+
+ax = plt.plot(df_graf.iloc[:, 20:40], c='grey', alpha=0.5)
+plt.plot(df_graf.iloc[:,62], c='red', alpha=1,)
+
+
+ax = plt.plot(df_graf.iloc[:, 40:60], c='grey', alpha=0.5)
+plt.plot(df_graf.iloc[:,63], c='red', alpha=1,)
+
