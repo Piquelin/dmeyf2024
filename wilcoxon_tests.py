@@ -14,61 +14,61 @@ from scipy.stats import wilcoxon
 def levanto_semillas():
     basepath='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/EV/'
     files = ['WUBA_de_fabrica_base_03_30.txt', 'WUBA_de_fabrica_clust_03_37.txt',
-             'Bagging_base_02_41.txt', 'Bagging_clust_01_51.txt', 
+             'Bagging_base_02_41.txt', 'Bagging_clust_01_51.txt',
              'Otros_base_03_30.txt', 'Otros_clust_01_42.txt']
-    
+
     columnas = ['fecha', 'rank', 'iteracion_bayesiana', 'qsemillas', 'semilla', 'corte', 'ganancia', 'metrica']
-    
+
     lista_nombres = []
     lista_seires = []
     for file in files:
         serie = pd.read_csv(file, names=columnas, sep='\t').ganancia
-        
+
         lista_nombres.append(file[:-10])
         lista_seires.append(serie[:-1])
-        
+
     return pd.concat(lista_seires, axis=1, keys=lista_nombres)
 
 
 def levanto_cortes():
         basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/EV/'
-        
+
         files_con_cortes = [
             'expw_EV-0007_ganancias_03_030.txt', 'expw_EV-0008_ganancias_03_037.txt',
             'expw_EV-0009_ganancias_03_036.txt', 'expw_EV-0010_ganancias_03_048.txt',
             'expw_EV-0007_ganancias_03_030.txt', 'expw_EV-0011_ganancias_03_035.txt',
             'EV-0013_pollo_parrillero_01_030.txt']
-        
+
         exp_ = [3,3,2,1,3,1, 1]
-        
+
         # df_ = pd.read_csv( basepath+files_con_cortes[0], sep='\t')
-        
+
         files = ['WUBA_de_fabrica_base_03_30.txt', 'WUBA_de_fabrica_clust_03_37.txt',
-                 'Bagging_base_02_41.txt', 'Bagging_clust_01_51.txt', 
+                 'Bagging_base_02_41.txt', 'Bagging_clust_01_51.txt',
                  'Otros_base_03_30.txt', 'Otros_clust_01_42.txt', 'Pollo_parrillero_01_030.txt']
-            
+
         lista_nombres = []
         lista_series = []
         lista_envios = []
-        
+
         for i in range(7):
             mod = exp_[i]
             lista_columnas = ['envios', f'gan_sum_{mod}']
             lista_nombres.append(files[i][:-10])
             for j in range(20):
                 lista_columnas.append(f'm_{mod}_{j+1}')
-            
+
             df_ = pd.read_csv(basepath + files_con_cortes[i], sep='\t')
             df_ = df_[lista_columnas]
             serie = df_.loc[df_[f'gan_sum_{mod}'].argmax()].reset_index(drop=True)
             envio = serie[:2]
             lista_envios.append(envio)
             lista_series.append(serie[2:])
-        
+
         valores_corte = pd.concat(lista_series, axis=1, keys=lista_nombres)
-        corte = pd.concat(lista_envios, axis=1, keys=lista_nombres)            
+        corte = pd.concat(lista_envios, axis=1, keys=lista_nombres)
         return valores_corte, corte
-    
+
 df_semillas, cortes = levanto_cortes()
 
 # df_semillas = levanto_semillas()
@@ -97,23 +97,24 @@ print(f' {col1:22} vs {col2:22} p.value: {wil.pvalue:,.10f}')
 
 
 basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/'
-
+basepath = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/vm_logs/'
 file='SC-0020_pollo_parrillero_future_prediccion.txt'
+
 
 def calcular_cortes_y_promedios(basepath, file):
     df_ = pd.read_csv(basepath+file, sep='\t')
-    
+
     df_['prom_1'] = df_.iloc[:,3:23].T.mean()
     df_['prom_2'] = df_.iloc[:,23:43].T.mean()
     df_['prom_3'] = df_.iloc[:,43:63].T.mean()
     df_['prom_T'] = df_.iloc[:,3:63].T.mean()
-    
-    
+
+
     lista_series =[]
     for col in df_.columns[3:]:
-        
+
         df_prom = df_[['numero_de_cliente', 'clase_ternaria', col]]
-        
+
         df_prom.insert(0, 'valor', df_prom['clase_ternaria'].map(lambda x: 273000 if x == "BAJA+2" else -7000))
         df_prom = df_prom.sort_values(col, ascending=False)
         df_prom['ganancia'] = df_prom['valor'].cumsum()
@@ -127,7 +128,7 @@ def calcular_cortes_y_promedios(basepath, file):
 
 ganancias = calcular_cortes_y_promedios(basepath, file)
 
-del i
+#%%
 
 
 df_graf = ganancias.iloc[8000:16000]
@@ -140,12 +141,56 @@ import matplotlib.pyplot as plt
 
 ax = plt.plot(df_graf.iloc[:, 0:20], c='grey', alpha=0.5)
 plt.plot(df_graf.iloc[:,61], c='red', alpha=1,)
-
+plt.show()
+plt.close()
 
 ax = plt.plot(df_graf.iloc[:, 20:40], c='grey', alpha=0.5)
 plt.plot(df_graf.iloc[:,62], c='red', alpha=1,)
-
+plt.show()
+plt.close()
 
 ax = plt.plot(df_graf.iloc[:, 40:60], c='grey', alpha=0.5)
 plt.plot(df_graf.iloc[:,63], c='red', alpha=1,)
+plt.show()
+plt.close()
 
+
+# %%
+
+
+
+file = 'SC-0001_primero_base_future_prediccion.txt'
+
+
+df_ = pd.read_csv(basepath+file, sep='\t')
+
+df_['prom_1'] = df_.iloc[:,3:8].T.mean()
+df_ = df_.sort_values('prom_1', ascending=False)
+
+
+df_.reset_index(drop=True).loc[14000, 'prom_1']
+df_.loc[14000]
+
+# %%
+
+
+# mensajes y detalles para subir a kaggle
+mensaje= "promedios_primera (KA-0001_01_056_s512977)"
+
+# 1 y 2
+modelo = 4
+# 484751   641909   212561
+# 582781   536453   525773
+semilla = 525773
+
+
+# %% bajo valores de los submits limite últimos 50
+
+contador_entregas = 0
+for entregas in range (8000, 13001, 1000):
+    archivo = f"{experimento[0:-1]}_{modelo}_{semilla}_{entregas}.csv"
+    path_archivo = path_exp + experimento + archivo
+    print('Subiendo', archivo)
+    !kaggle competitions submit -c {competencia} -f "{path_archivo}" -m "{mensaje}"
+    time.sleep(1.3)  # Seconds
+    contador_entregas = contador_entregas + 1
