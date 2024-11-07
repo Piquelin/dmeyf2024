@@ -4,10 +4,12 @@ Created on Tue Nov  5 11:33:35 2024
 
 @author: jfgonzalez
 """
-
+import numpy as np
 import pandas as pd
 from scipy.stats import wilcoxon
-# import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+
 
 # %%
 
@@ -69,6 +71,80 @@ def levanto_cortes():
         corte = pd.concat(lista_envios, axis=1, keys=lista_nombres)
         return valores_corte, corte
 
+
+
+def grafico_3m_202106(df_graf, titulo='Pollo-parrillero'):
+    # Crear figura y subplots
+    fig, axs = plt.subplots(1, 3, sharey=True, figsize=(15, 5))
+    
+    # Configuración del rango de ejes y formato de unidades
+    for ax in axs:
+        ax.set_xlim(8000, 16000)
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{int(x / 1e3):,d}K"))  # Separador de miles en eje X
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, _: f"{y / 1e6:.0f}M"))  # Millones con 3 decimales en eje Y
+        
+        
+        # Configuración de la grilla
+        ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=0.8)
+        ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=0.5, alpha=0.5)
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(5e6))  # Divisiones mayores cada 5 millones
+        ax.yaxis.set_minor_locator(ticker.MultipleLocator(1e6))  # Divisiones menores cada 1 millón
+        ax.grid(visible=True, which='major', axis='x', linestyle='--', linewidth=0.8, alpha=0.5)
+    
+    
+    # Primer subplot
+    axs[0].plot(df_graf.iloc[:, 0:20], c='grey', alpha=0.5, linewidth=0.5)
+    axs[0].plot(df_graf.iloc[:, 61], c='red', alpha=1, linewidth=1)
+    
+    # Segundo subplot
+    axs[1].plot(df_graf.iloc[:, 20:40], c='grey', alpha=0.5, linewidth=0.5)
+    axs[1].plot(df_graf.iloc[:, 62], c='red', alpha=1, linewidth=1)
+    
+    # Tercer subplot
+    axs[2].plot(df_graf.iloc[:, 40:60], c='grey', alpha=0.5, linewidth=0.5)
+    axs[2].plot(df_graf.iloc[:, 63], c='red', alpha=1, linewidth=1)
+    
+    fig.suptitle(titulo)
+    
+    # Ajustes finales
+    plt.tight_layout()
+    plt.show()
+    plt.close()
+    
+    
+
+def calcular_cortes_y_promedios(basepath, file):
+    df_ = pd.read_csv(basepath+file, sep='\t')
+
+    df_['prom_1'] = df_.iloc[:,3:23].T.mean()
+    df_['prom_2'] = df_.iloc[:,23:43].T.mean()
+    df_['prom_3'] = df_.iloc[:,43:63].T.mean()
+    df_['prom_T'] = df_.iloc[:,3:63].T.mean()
+
+
+    lista_series =[]
+    for col in df_.columns[3:]:
+
+        df_prom = df_[['numero_de_cliente', 'clase_ternaria', col]]
+
+        df_prom.insert(0, 'valor', df_prom['clase_ternaria'].map(lambda x: 273000 if x == "BAJA+2" else -7000))
+        df_prom = df_prom.sort_values(col, ascending=False)
+        df_prom['ganancia'] = df_prom['valor'].cumsum()
+        df_prom = df_prom.reset_index()
+        df_prom['ganancia'].argmax()
+        print( f'columna: {col}', 'corte:', df_prom['ganancia'].argmax(), 'ganancia:',df_prom.loc[df_prom['ganancia'].argmax()]['ganancia'])
+        lista_series.append(df_prom['ganancia'])
+        del df_prom
+    ganancias = pd.concat(lista_series, axis=1, keys=df_.columns[3:])
+    return ganancias
+    
+
+
+
+# %%
+
+
+
 df_semillas, cortes = levanto_cortes()
 
 # df_semillas = levanto_semillas()
@@ -97,79 +173,82 @@ print(f' {col1:22} vs {col2:22} p.value: {wil.pvalue:,.10f}')
 
 
 basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/'
-basepath = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/vm_logs/'
+# basepath = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/vm_logs/'
 file='SC-0020_pollo_parrillero_future_prediccion.txt'
 
 
-def calcular_cortes_y_promedios(basepath, file):
-    df_ = pd.read_csv(basepath+file, sep='\t')
-
-    df_['prom_1'] = df_.iloc[:,3:23].T.mean()
-    df_['prom_2'] = df_.iloc[:,23:43].T.mean()
-    df_['prom_3'] = df_.iloc[:,43:63].T.mean()
-    df_['prom_T'] = df_.iloc[:,3:63].T.mean()
-
-
-    lista_series =[]
-    for col in df_.columns[3:]:
-
-        df_prom = df_[['numero_de_cliente', 'clase_ternaria', col]]
-
-        df_prom.insert(0, 'valor', df_prom['clase_ternaria'].map(lambda x: 273000 if x == "BAJA+2" else -7000))
-        df_prom = df_prom.sort_values(col, ascending=False)
-        df_prom['ganancia'] = df_prom['valor'].cumsum()
-        df_prom = df_prom.reset_index()
-        df_prom['ganancia'].argmax()
-        print( f'columna: {col}', 'corte:', df_prom['ganancia'].argmax(), 'ganancia:',df_prom.loc[df_prom['ganancia'].argmax()]['ganancia'])
-        lista_series.append(df_prom['ganancia'])
-        del df_prom
-    ganancias = pd.concat(lista_series, axis=1, keys=df_.columns[3:])
-    return ganancias
 
 ganancias = calcular_cortes_y_promedios(basepath, file)
 
 #%%
 
-
-df_graf = ganancias.iloc[8000:16000]
-
-df_graf.columns
-
-modelo = 1
-
-import matplotlib.pyplot as plt
-
-ax = plt.plot(df_graf.iloc[:, 0:20], c='grey', alpha=0.5)
-plt.plot(df_graf.iloc[:,61], c='red', alpha=1,)
-plt.show()
-plt.close()
-
-ax = plt.plot(df_graf.iloc[:, 20:40], c='grey', alpha=0.5)
-plt.plot(df_graf.iloc[:,62], c='red', alpha=1,)
-plt.show()
-plt.close()
-
-ax = plt.plot(df_graf.iloc[:, 40:60], c='grey', alpha=0.5)
-plt.plot(df_graf.iloc[:,63], c='red', alpha=1,)
-plt.show()
-plt.close()
-
+grafico_3m_202106(df_graf, titulo='Pollo-parrillero')
 
 # %%
 
 
-
-file = 'SC-0001_primero_base_future_prediccion.txt'
+basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/'
+file = 'SC-0021_pollo_bagg_ka_future_prediccion.txt'
 
 
 df_ = pd.read_csv(basepath+file, sep='\t')
 
-df_['prom_1'] = df_.iloc[:,3:8].T.mean()
-df_ = df_.sort_values('prom_1', ascending=False)
+
+modelos = 3
+semillas = 20
+
+lista_prob_prom = []
+
+for i in range(modelos):
+    df_entrega = pd.DataFrame()
+    df_entrega['numero_de_cliente'] = df_['numero_de_cliente']
+    df_entrega['prom'] = df_.iloc[:,(i*semillas + 3):(i*semillas + 3 + semillas)].T.mean()
+    df_entrega = df_entrega.sort_values('prom', ascending=False).reset_index()
+    df_entrega = df_entrega[['numero_de_cliente', 'prom']]
+    lista_prob_prom.append(df_entrega)
 
 
-df_.reset_index(drop=True).loc[14000, 'prom_1']
-df_.loc[14000]
+total_clientes =len(lista_prob_prom[0])
+for i in range(modelos):
+    for corte in range(8000, 16001, 500):
+        array = np.zeros((total_clientes, 1))
+        array[:corte] = 1
+        lista_prob_prom[i][f'pred_{corte}'] = array.astype(int)
+        
+
+
+# %%
+
+import os
+import pandas as pd
+
+# Variables y estructuras de datos
+experimento = 'pollos_parrilleros'
+modelos = [1,2,3]  # Nombres de los modelos
+dfs = lista_prob_prom  # Lista de DataFrames (uno para cada modelo)
+
+# Crear directorio de entregas
+directorio_entregas = f'entregas_{experimento}'
+os.makedirs(directorio_entregas, exist_ok=True)
+
+# Guardar predicciones de cada modelo en archivos CSV
+for modelo, df in zip(modelos, dfs):
+    for col in df.columns:
+        if col.startswith('pred_'):
+            corte = col.split('_')[1]  # Extraer el número del corte
+            df_pred = df[['numero_de_cliente', col]].copy()
+            df_pred.columns = ['numero_de_cliente', 'Predicted']  # Renombrar columnas
+
+            # Nombre de archivo y ruta de guardado
+            archivo_nombre = f"{experimento}_{modelo}_{corte}.csv"
+            archivo_ruta = os.path.join(directorio_entregas, archivo_nombre)
+            
+            # Guardar en CSV
+            df_pred.to_csv(archivo_ruta, index=False)
+
+
+
+# Predicted
 
 # %%
 
