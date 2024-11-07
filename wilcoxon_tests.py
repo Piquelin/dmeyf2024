@@ -4,6 +4,7 @@ Created on Tue Nov  5 11:33:35 2024
 
 @author: jfgonzalez
 """
+import os
 import numpy as np
 import pandas as pd
 from scipy.stats import wilcoxon
@@ -140,6 +141,50 @@ def calcular_cortes_y_promedios(basepath, file):
     
 
 
+def armo_entregas_desde_probs(df_, modelos=3, semillas=20):
+    lista_prob_prom = []
+    
+    for i in range(modelos):
+        df_entrega =  df_[['numero_de_cliente', 'foto_mes', 'clase_ternaria']]
+        # df_entrega['numero_de_cliente'] = df_['numero_de_cliente']
+        df_entrega['prom'] = df_.iloc[:,(i*semillas + 3):(i*semillas + 3 + semillas)].T.mean()
+        df_entrega = df_entrega.sort_values('prom', ascending=False).reset_index()
+        df_entrega = df_entrega[['numero_de_cliente',  'foto_mes', 'clase_ternaria', 'prom']]
+        lista_prob_prom.append(df_entrega)
+    
+    
+    total_clientes =len(lista_prob_prom[0])
+    for i in range(modelos):
+        for corte in range(8000, 16001, 500):
+            array = np.zeros((total_clientes, 1))
+            array[:corte] = 1
+            lista_prob_prom[i][f'pred_{corte}'] = array.astype(int)
+    
+    return lista_prob_prom
+            
+
+
+def guardo_en_archivos(dfs, experimento):
+    # Crear directorio de entregas
+    directorio_entregas = f'entregas_{experimento}'
+    os.makedirs(directorio_entregas, exist_ok=True)
+    
+    # Guardar predicciones de cada modelo en archivos CSV
+    for modelo, df in enumerate(dfs):
+        for col in df.columns:
+            if col.startswith('pred_'):
+                corte = col.split('_')[1]  # Extraer el número del corte
+                df_pred = df[['numero_de_cliente', col]].copy()
+                df_pred.columns = ['numero_de_cliente', 'Predicted']  # Renombrar columnas
+    
+                # Nombre de archivo y ruta de guardado
+                archivo_nombre = f"{experimento}_{modelo}_{corte}.csv"
+                archivo_ruta = os.path.join(directorio_entregas, archivo_nombre)
+                
+                # Guardar en CSV
+                df_pred.to_csv(archivo_ruta, index=False)
+    return None
+
 
 # %%
 
@@ -182,94 +227,91 @@ ganancias = calcular_cortes_y_promedios(basepath, file)
 
 #%%
 
-grafico_3m_202106(df_graf, titulo='Pollo-parrillero')
+grafico_3m_202106(df_graf=ganancias.loc[8000:16000], titulo='Pollo-parrillero')
 
 # %%
 
 
 basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/'
 file = 'SC-0021_pollo_bagg_ka_future_prediccion.txt'
+file = 'SC-0020_pollo_parrillero_future_prediccion.txt'
 
 
 df_ = pd.read_csv(basepath+file, sep='\t')
+    
+    
+    
+lista = armo_entregas_desde_probs(df_, modelos=3, semillas=20)
 
-
-modelos = 3
-semillas = 20
-
-lista_prob_prom = []
-
-for i in range(modelos):
-    df_entrega = pd.DataFrame()
-    df_entrega['numero_de_cliente'] = df_['numero_de_cliente']
-    df_entrega['prom'] = df_.iloc[:,(i*semillas + 3):(i*semillas + 3 + semillas)].T.mean()
-    df_entrega = df_entrega.sort_values('prom', ascending=False).reset_index()
-    df_entrega = df_entrega[['numero_de_cliente', 'prom']]
-    lista_prob_prom.append(df_entrega)
-
-
-total_clientes =len(lista_prob_prom[0])
-for i in range(modelos):
-    for corte in range(8000, 16001, 500):
-        array = np.zeros((total_clientes, 1))
-        array[:corte] = 1
-        lista_prob_prom[i][f'pred_{corte}'] = array.astype(int)
-        
 
 
 # %%
 
-import os
-import pandas as pd
-
-# Variables y estructuras de datos
-experimento = 'pollos_parrilleros'
-modelos = [1,2,3]  # Nombres de los modelos
-dfs = lista_prob_prom  # Lista de DataFrames (uno para cada modelo)
-
-# Crear directorio de entregas
-directorio_entregas = f'entregas_{experimento}'
-os.makedirs(directorio_entregas, exist_ok=True)
-
-# Guardar predicciones de cada modelo en archivos CSV
-for modelo, df in zip(modelos, dfs):
-    for col in df.columns:
-        if col.startswith('pred_'):
-            corte = col.split('_')[1]  # Extraer el número del corte
-            df_pred = df[['numero_de_cliente', col]].copy()
-            df_pred.columns = ['numero_de_cliente', 'Predicted']  # Renombrar columnas
-
-            # Nombre de archivo y ruta de guardado
-            archivo_nombre = f"{experimento}_{modelo}_{corte}.csv"
-            archivo_ruta = os.path.join(directorio_entregas, archivo_nombre)
-            
-            # Guardar en CSV
-            df_pred.to_csv(archivo_ruta, index=False)
+guardo_en_archivos(lista, experimento='pollos_parrilleros')
 
 
 
-# Predicted
+# %%
+# len(lista[0])
+# df_unos = lista[0][['numero_de_cliente', 'pred_16000']]
+# df_unos['Predicted'] = 1
+# df_unos = df_unos[['numero_de_cliente', 'Predicted']]
+# df_unos.to_csv('todouno_comp_02', index=False)
+
+# de acá sale que hay unos 1033 BAJA+2 y la ganacia máxima es 282.009
+# andamos entre los 600 y 700 aciertos
+
 
 # %%
 
 
-# mensajes y detalles para subir a kaggle
-mensaje= "promedios_primera (KA-0001_01_056_s512977)"
-
-# 1 y 2
-modelo = 4
-# 484751   641909   212561
-# 582781   536453   525773
-semilla = 525773
+    
 
 
-# %% bajo valores de los submits limite últimos 50
+# %%
 
-contador_entregas = 0
-for entregas in range (8000, 13001, 1000):
-    archivo = f"{experimento[0:-1]}_{modelo}_{semilla}_{entregas}.csv"
-    path_archivo = path_exp + experimento + archivo
-    print('Subiendo', archivo)
-    !kaggle competitions submit -c {competencia} -f "{path_archivo}" -m "{mensaje}"
-    time.sleep(1.3)  # Seconds
-    contador_entregas = contador_entregas + 1
+
+# # mensajes y detalles para subir a kaggle
+# mensaje= "promedios_primera (KA-0001_01_056_s512977)"
+
+# # 1 y 2
+# modelo = 4
+# # 484751   641909   212561
+# # 582781   536453   525773
+# semilla = 525773
+
+
+# # %% bajo valores de los submits limite últimos 50
+
+# contador_entregas = 0
+# for entregas in range (8000, 13001, 1000):
+#     archivo = f"{experimento[0:-1]}_{modelo}_{semilla}_{entregas}.csv"
+#     path_archivo = path_exp + experimento + archivo
+#     print('Subiendo', archivo)
+#     !kaggle competitions submit -c {competencia} -f "{path_archivo}" -m "{mensaje}"
+#     time.sleep(1.3)  # Seconds
+#     contador_entregas = contador_entregas + 1
+
+# %%
+
+
+df_errores = lista[0][['numero_de_cliente', 'foto_mes', 'clase_ternaria', 'prom', 'pred_9000']]
+
+df_prom['clase_ternaria'].map(lambda x: 273000 if x == "BAJA+2" else -7000))
+
+print([lambda x: 1 if (df_prom['pred_9000'] == 1 & df_prom['clase_ternaria'] != 'BAJA+2') |( df_prom['pred_9000'] == 0 & df_prom['clase_ternaria'] == 'BAJA+2') else 0])
+  import numpy as np
+
+# Crear la columna 'err' basada en las condiciones dadas
+df_errores['err'] = np.where(
+    (df_errores['pred_9000'] == 1) & (df_errores['clase_ternaria'] == 'CONTINUA'), 1,
+    np.where(
+        (df_errores['pred_9000'] == 0) & (df_errores['clase_ternaria'] != 'CONTINUA'), 1,
+        0
+    )
+)
+
+df_errores[df_errores['err']==1]
+    
+
+    
