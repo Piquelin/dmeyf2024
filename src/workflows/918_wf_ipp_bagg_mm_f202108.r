@@ -18,7 +18,8 @@ envg$EXPENV$repo_dir <- "~/dmeyf2024/"
 envg$EXPENV$datasets_dir <- "~/buckets/b1/datasets/"
 envg$EXPENV$messenger <- "~/install/zulip_enviar.sh"
 
-envg$EXPENV$semilla_primigenia <- 990211 
+# lugar para alternar semillas 799891, 799921, 799961, 799991, 800011
+envg$EXPENV$semilla_primigenia <- 799991
 
 # leo el unico parametro del script
 args <- commandArgs(trailingOnly=TRUE)
@@ -260,25 +261,25 @@ CN_canaritos_asesinos_base <- function( pinputexps, ratio, desvio)
 #   y solo incluyo en el dataset al 20% de los CONTINUA
 #  azaroso, utiliza semilla
 
-TS_strategy_base6 <- function( pinputexps )
+TS_strategy_base8 <- function( pinputexps )
 {
   if( -1 == (param_local <- exp_init())$resultado ) return( 0 )# linea fija
 
   param_local$meta$script <- "/src/wf-etapas/z2101_TS_training_strategy.r"
 
 
-  param_local$future <- c(202106)
+  param_local$future <- c(202108)
 
   param_local$final_train$undersampling <- 1.0
   param_local$final_train$clase_minoritaria <- c( "BAJA+1", "BAJA+2")
-  param_local$final_train$training <- c(202104, 202103, 202102,
-    202101, 202012, 202011)
+  param_local$final_train$training <- c(202106, 202105, 202104,
+    202103, 202102, 202101, 202012,202011,202010,202009,202008,202007)
 
 
-  param_local$train$training <- c(202102, 202101, 202012,
-    202111, 202010, 202009)
-  param_local$train$validation <- c(202103)
-  param_local$train$testing <- c(202104)
+  param_local$train$training <- c(202104, 202103, 202102,
+    202101, 202012, 202011, 202010,202009,202008,202007)
+  param_local$train$validation <- c(202105)
+  param_local$train$testing <- c(202106)
 
   # Atencion  0.2  de  undersampling de la clase mayoritaria,  los CONTINUA
   # 1.0 significa NO undersampling
@@ -313,7 +314,7 @@ HT_tuning_base <- function( pinputexps, bo_iteraciones, bypass=FALSE)
   #  los que tienen un vector,  son los que participan de la Bayesian Optimization
 
   param_local$lgb_param <- list(
-    boosting = "dart", # puede ir  dart  , ni pruebe random_forest
+    boosting = "gbdt", # puede ir  dart  , ni pruebe random_forest
     objective = "binary",
     metric = "custom",
     first_metric_only = TRUE,
@@ -327,7 +328,7 @@ HT_tuning_base <- function( pinputexps, bo_iteraciones, bypass=FALSE)
     lambda_l1 = 0.0, # lambda_l1 >= 0.0
     lambda_l2 = 0.0, # lambda_l2 >= 0.0
     max_bin = 31L, # lo debo dejar fijo, no participa de la BO
-    # num_iterations = 9999, # un numero muy grande, lo limita early_stopping_rounds
+    num_iterations = 9999, # un numero muy grande, lo limita early_stopping_rounds
 
     # bagging_fraction = 1.0, # 0.0 < bagging_fraction <= 1.0
     pos_bagging_fraction = 1.0, # 0.0 < pos_bagging_fraction <= 1.0
@@ -335,25 +336,28 @@ HT_tuning_base <- function( pinputexps, bo_iteraciones, bypass=FALSE)
     is_unbalance = FALSE, #
     scale_pos_weight = 1.0, # scale_pos_weight > 0.0
 
-    # drop_rate = 0.1, # 0.0 < neg_bagging_fraction <= 1.0
-    max_drop = -1, # <=0 means no limit
-    # skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
+    drop_rate = 0.1, # 0.0 < neg_bagging_fraction <= 1.0
+    max_drop = 50, # <=0 means no limit
+    skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
+    
+    
+    # # quantized me rompió 
+    # use_quantized_grad = TRUE, # enabling this will discretize (quantize) the gradients and hessians into bins
+    # num_grad_quant_bins =  4,
+    # quant_train_renew_leaf = TRUE,
 
     extra_trees = FALSE,
+    
     # Parte variable
     learning_rate = c( 0.02, 0.3 ),
     feature_fraction = c( 0.5, 0.9 ),
-    num_leaves = c( 8L, 2048L,  "integer" ),
-    min_data_in_leaf = c( 100L, 10000L, "integer" ),
-    bagging_fraction = c(0.1, 0.9),
-    neg_bagging_fraction = c(0.1, 0.9),
-    num_iterations = c(200L, 1000L, "integer" ),
-    drop_rate = c( 0.1, 0.5 ),
-    skip_drop = c(0.2, 0.9)
-    
+    num_leaves = c( 8L, 1000L,  "integer" ),
+    min_data_in_leaf = c( 100L, 15000L, "integer" ),
+    bagging_fraction = c(0.1, 0.5),
+    neg_bagging_fraction = c(0.1, 0.5)
   )
 
-
+  
   # iteraciones de la Optimizacion Bayesiana
   param_local$bo_iteraciones <- bo_iteraciones
 
@@ -399,38 +403,34 @@ SC_scoring <- function( pinputexps )
   return( exp_correr_script( param_local ) ) # linea fija
 }
 #------------------------------------------------------------------------------
-# proceso EV_conclase  Baseline
+# proceso KA_evaluate_kaggle
 # deterministico, SIN random
 
-EV_evaluate_conclase_gan <- function( pinputexps )
+KA_evaluate_kaggle <- function( pinputexps )
 {
   if( -1 == (param_local <- exp_init())$resultado ) return( 0 )# linea fija
 
-  param_local$meta$script <- "/src/wf-etapas/z2501_EV_evaluate_conclase_gan.r"
+  param_local$meta$script <- "/src/wf-etapas/z2601_KA_evaluate_kaggle.r"
 
   param_local$semilla <- NULL  # no usa semilla, es deterministico
 
-  param_local$train$positivos <- c( "BAJA+2")
-  param_local$train$gan1 <- 273000
-  param_local$train$gan0 <-  -7000
-  param_local$train$meseta <- 2001
+  param_local$isems_submit <- 1:20 # misterioso parametro, no preguntar
 
-  # para graficar
-  param_local$graficar$envios_desde <-   8000L
-  param_local$graficar$envios_hasta <-  16000L
-  param_local$graficar$ventana_suavizado <- 2001L
+  param_local$envios_desde <-   9000L
+  param_local$envios_hasta <-  13000L
+  param_local$envios_salto <-   500L
+  param_local$competition <- "dm-ey-f-2024-segunda"
 
   return( exp_correr_script( param_local ) ) # linea fija
 }
-
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 # A partir de ahora comienza la seccion de Workflows Completos
 #------------------------------------------------------------------------------
 # Este es el  Workflow Baseline
-# Que predice 202106 donde SI hay clase completa
+# Que predice 202108 donde NO conozco la clase
 
-wf_junio_ipp_bag_dart <- function( pnombrewf )
+wf_ipp_bagg_ka <- function( pnombrewf )
 {
   param_local <- exp_wf_init( pnombrewf ) # linea workflow inicial fija
 
@@ -449,16 +449,16 @@ wf_junio_ipp_bag_dart <- function( pnombrewf )
     mtry_ratio= 0.2
   )
 
-  #CN_canaritos_asesinos_base(ratio=0.2, desvio=4.0)
+  # CN_canaritos_asesinos_base(ratio=0.2, desvio=4.0)
 
   # Etapas modelado
-  ts6 <- TS_strategy_base6()
+  ts8 <- TS_strategy_base8()
   ht <- HT_tuning_base( bo_iteraciones = 50 )  # iteraciones inteligentes
 
   # Etapas finales
-  fm <- FM_final_models_lightgbm( c(ht, ts6), ranks=c(1,2,3), qsemillas=20 )
-  SC_scoring( c(fm, ts6) )
-  EV_evaluate_conclase_gan() # evaluacion contra mes CON clase
+  fm <- FM_final_models_lightgbm( c(ht, ts8), ranks=c(1,2,3), qsemillas=20 )
+  SC_scoring( c(fm, ts8) )
+  # KA_evaluate_kaggle()  # genera archivos para Kaggle
 
   return( exp_wf_end() ) # linea workflow final fija
 }
@@ -466,6 +466,6 @@ wf_junio_ipp_bag_dart <- function( pnombrewf )
 #------------------------------------------------------------------------------
 # Aqui comienza el programa
 
-# llamo al workflow con future = 202106
-wf_junio_ipp_bag_dart()
+# llamo al workflow con future = 202108
+wf_ipp_bagg_ka()
 
