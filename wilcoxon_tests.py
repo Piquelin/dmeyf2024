@@ -235,6 +235,7 @@ grafico_3m_202106(df_graf=ganancias.loc[8000:16000], titulo='Pollo-parrillero')
 basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/'
 file = 'SC-0021_pollo_bagg_ka_future_prediccion.txt'
 file = 'SC-0020_pollo_parrillero_future_prediccion.txt'
+file = 'SC-0023_pollo_bagg_dart_ka_future_prediccion.txt'
 
 
 df_ = pd.read_csv(basepath+file, sep='\t')
@@ -247,7 +248,7 @@ lista = armo_entregas_desde_probs(df_, modelos=3, semillas=20)
 
 # %%
 
-guardo_en_archivos(lista, experimento='pollos_parrilleros')
+guardo_en_archivos(lista, experimento='SC-0023_pollo_bagg_dart_ka')
 
 
 
@@ -297,11 +298,6 @@ guardo_en_archivos(lista, experimento='pollos_parrilleros')
 
 df_errores = lista[0][['numero_de_cliente', 'foto_mes', 'clase_ternaria', 'prom', 'pred_9000']]
 
-df_prom['clase_ternaria'].map(lambda x: 273000 if x == "BAJA+2" else -7000))
-
-print([lambda x: 1 if (df_prom['pred_9000'] == 1 & df_prom['clase_ternaria'] != 'BAJA+2') |( df_prom['pred_9000'] == 0 & df_prom['clase_ternaria'] == 'BAJA+2') else 0])
-  import numpy as np
-
 # Crear la columna 'err' basada en las condiciones dadas
 df_errores['err'] = np.where(
     (df_errores['pred_9000'] == 1) & (df_errores['clase_ternaria'] == 'CONTINUA'), 1,
@@ -312,6 +308,7 @@ df_errores['err'] = np.where(
 )
 
 df_errores[df_errores['err']==1]
-    
+
+
 
     
