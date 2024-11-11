@@ -430,7 +430,7 @@ KA_evaluate_kaggle <- function( pinputexps )
 # Este es el  Workflow Baseline
 # Que predice 202108 donde NO conozco la clase
 
-wf_ipp_bagg_ka <- function( pnombrewf )
+wf_ipp_bagg_mm_ka <- function( pnombrewf )
 {
   param_local <- exp_wf_init( pnombrewf ) # linea workflow inicial fija
 
@@ -467,5 +467,5 @@ wf_ipp_bagg_ka <- function( pnombrewf )
 # Aqui comienza el programa
 
 # llamo al workflow con future = 202108
-wf_ipp_bagg_ka()
+wf_ipp_bagg_mm_ka()
 
