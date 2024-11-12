@@ -204,6 +204,9 @@ for (modelo_rank in envg$PARAM$modelos_rank) {
               file = "tb_modelos.txt",
               sep ="\t"
             )
+      # Liberar la memoria del modelo
+      rm(modelo_final)
+      gc()
     }
   }
 }

@@ -403,6 +403,32 @@ SC_scoring <- function( pinputexps )
 
   return( exp_correr_script( param_local ) ) # linea fija
 }
+
+#-----------------------------------------------------------------------------
+# proceso EV_conclase  Baseline
+# deterministico, SIN random
+
+EV_evaluate_conclase_gan <- function( pinputexps )
+{
+  if( -1 == (param_local <- exp_init())$resultado ) return( 0 )# linea fija
+  
+  param_local$meta$script <- "/src/wf-etapas/z2501_EV_evaluate_conclase_gan.r"
+  
+  param_local$semilla <- NULL  # no usa semilla, es deterministico
+  
+  param_local$train$positivos <- c( "BAJA+2")
+  param_local$train$gan1 <- 117000
+  param_local$train$gan0 <-  -3000
+  param_local$train$meseta <- 2001
+  
+  # para graficar
+  param_local$graficar$envios_desde <-  9000L
+  param_local$graficar$envios_hasta <-  13000L
+  param_local$graficar$ventana_suavizado <- 2001L
+  
+  return( exp_correr_script( param_local ) ) # linea fija
+}
+
 #------------------------------------------------------------------------------
 # proceso KA_evaluate_kaggle
 # deterministico, SIN random
@@ -459,10 +485,14 @@ wf_pajaritos <- function( pnombrewf )
   # Etapas finales
   fm <- FM_final_models_lightgbm( c(ht, ts8), ranks=c(1,2,3), qsemillas=5 )
   SC_scoring( c(fm, ts8) )
+  
+  # EV_evaluate_conclase_gan()
   KA_evaluate_kaggle()  # genera archivos para Kaggle
 
   return( exp_wf_end() ) # linea workflow final fija
 }
+
+
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 # Aqui comienza el programa
