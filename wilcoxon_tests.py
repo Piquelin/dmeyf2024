@@ -220,35 +220,41 @@ print(f' {col1:22} vs {col2:22} p.value: {wil.pvalue:,.10f}')
 basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/'
 # basepath = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/vm_logs/'
 file='SC-0020_pollo_parrillero_future_prediccion.txt'
-
+file = 'SC-0024_ipp-bagg-mm-06_future_prediccion.txt'
 
 
 ganancias = calcular_cortes_y_promedios(basepath, file)
 
 #%%
 
-grafico_3m_202106(df_graf=ganancias.loc[8000:16000], titulo='Pollo-parrillero')
+grafico_3m_202106(df_graf=ganancias.loc[8000:16000], titulo='ipp-bagg-mm')
 
 # %%
 
 
 basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/'
-file = 'SC-0021_pollo_bagg_ka_future_prediccion.txt'
-file = 'SC-0020_pollo_parrillero_future_prediccion.txt'
-file = 'SC-0023_pollo_bagg_dart_ka_future_prediccion.txt'
+file1 = 'SC-0021_pollo_bagg_ka_future_prediccion.txt'
+# file0 = 'SC-0020_pollo_parrillero_future_prediccion.txt'
+file2 = 'SC-0023_pollo_bagg_dart_ka_future_prediccion.txt'
+file3 = 'SC-0025_ipp_bagg_mm_ka_future_prediccion.txt'
+file4 = 'SC-0026_ipp-bagg-dart-mm_future_prediccion.txt'
 
+# df0 = pd.read_csv(basepath+file0, sep='\t')
+df1 = pd.read_csv(basepath+file1, sep='\t')
+df2 = pd.read_csv(basepath+file2, sep='\t')
+df3 = pd.read_csv(basepath+file3, sep='\t')    
+df4 = pd.read_csv(basepath+file4, sep='\t')
 
-df_ = pd.read_csv(basepath+file, sep='\t')
-    
-    
-    
-lista = armo_entregas_desde_probs(df_, modelos=3, semillas=20)
+df_all = pd.concat([df1, df2.iloc[:,3:], df3.iloc[:,3:], df4.iloc[:,3:]], axis=1, )
 
+    
+# lista = armo_entregas_desde_probs(df_, modelos=3, semillas=20)
+lista = armo_entregas_desde_probs(df_all, modelos=1, semillas=240)
 
 
 # %%
 
-guardo_en_archivos(lista, experimento='SC-0023_pollo_bagg_dart_ka')
+guardo_en_archivos(lista, experimento='SC-0021-23-25-26_promedio')
 
 
 
