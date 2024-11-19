@@ -474,7 +474,7 @@ wf_ipp_bagg_mm_semivars_ka <- function( pnombrewf )
   ht <- HT_tuning_base( bo_iteraciones = 50 )  # iteraciones inteligentes
 
   # Etapas finales
-  fm <- FM_final_models_lightgbm( c(ht, ts8), ranks=c(1,2,3), qsemillas=20 )
+  fm <- FM_final_models_lightgbm( c(ht, ts8), ranks=c(6,7,8), qsemillas=20 )
   SC_scoring( c(fm, ts8) )
   # KA_evaluate_kaggle()  # genera archivos para Kaggle
 
