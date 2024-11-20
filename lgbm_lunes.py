@@ -47,8 +47,8 @@ dataset_file = 'competencia_02.parquet'
 ganancia_acierto = 273000
 costo_estimulo = 7000
 
-mes_train = 202102
-mes_test = 202104
+mes_train = 202104
+mes_test = 202106
 
 # agregue sus semillas
 semillas = [17,19,23,29,31]
@@ -68,8 +68,8 @@ data['clase_binaria2'] = 0
 data['clase_binaria1'] = np.where(data['clase_ternaria'] == 'BAJA+2', 1, 0)
 data['clase_binaria2'] = np.where(data['clase_ternaria'] == 'CONTINUA', 0, 1)
 
-data.tmobile_app = data.tmobile_app.astype('int64')
-data.cmobile_app_trx = data.cmobile_app_trx.fillna(numpy.nan).astype('float64')
+data.tmobile_app = data.tmobile_app.fillna(np.nan).astype('float64')
+data.cmobile_app_trx = data.cmobile_app_trx.fillna(np.nan).astype('float64')
 
 # %%
 
@@ -213,7 +213,7 @@ def objective(trial):
 
 
 storage_name = "sqlite:///" + db_path + "optimization_lgbm.db"
-study_name = "exp_301_lgbm"
+study_name = 'exp_302_lgbm'
 
 study = optuna.create_study(
     direction="maximize",
@@ -224,7 +224,7 @@ study = optuna.create_study(
 
 # %%
 
-study.optimize(objective, n_trials=50) # subir subir
+study.optimize(objective, n_trials=20) # subir subir
 
 # %%
 
@@ -247,6 +247,14 @@ plot_contour(study)
 plot_contour(study, params=['num_leaves','min_data_in_leaf'] )
 
 plot_contour(study, params=['bagging_fraction','feature_fraction'] )
+
+plot_contour(study, params=['learning_rate','feature_fraction'] )
+plot_contour(study, params=['learning_rate','min_data_in_leaf'] )
+plot_contour(study, params=['learning_rate','bagging_fraction'] )
+plot_contour(study, params=['learning_rate','num_leaves'] )
+
+
+
 
 df = study.trials_dataframe()
 
