@@ -607,6 +607,27 @@ cat( "Iniciando lectura del dataset\n" )
 dataset <- fread(envg$PARAM$dataset)
 cat( "Finalizada lectura del dataset\n" )
 
+# acá estoy sacando baja+1
+
+
+# Definir los valores específicos para foto_mes que deseamos filtrar
+valores_foto_mes <- c(202104, 202103, 202102, 202101, 
+                      202012, 202011, 202010, 202009, 202008, 202007, 
+                      # 202006, 202005, 202004,   Excluyo por variables rotas
+                      202003, 202002, 202001,
+                      201912, 201911,
+                      # 201910 Excluyo por variables rotas
+                      201909, 201908, 201907, 201906,
+                      # 201905  Excluyo por variables rotas
+                      201904, 201903)
+
+
+# Filtrar las filas que no cumplen ambas condiciones y eliminarlas
+dataset <- dataset[!(foto_mes %in% valores_foto_mes & clase_ternaria == "BAJA+1")]
+
+# acá termina insert
+
+
 dataset[, azar := NULL]
 
 # Verificaciones
