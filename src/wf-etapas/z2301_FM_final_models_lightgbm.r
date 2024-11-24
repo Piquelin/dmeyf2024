@@ -78,6 +78,18 @@ dataset <- fread(arch_dataset)
 envg$PARAM$dataset_metadata <- read_yaml( paste0( "./", envg$PARAM$input[2], "/dataset_metadata.yml" ) )
 
 
+# Definir los valores específicos para foto_mes que deseamos filtrar
+valores_foto_mes <- c(202106, 202105, # 202104,
+                       202103, 202102, 202101, 202012, 202011, 202010,
+                       202009, 202008, 202007, 202006, 202005, 202002, 202001, 201912, 201911, 201911,                            
+                       201910, 201909, 201908, 201907, 201906, 201905, 
+                       201904, 201903)
+
+# Filtrar las filas que no cumplen ambas condiciones y eliminarlas
+dataset <- dataset[!(foto_mes %in% valores_foto_mes & clase_ternaria == "BAJA+1")]
+
+# acá termina insert
+
 campos_buenos <- setdiff(colnames(dataset), c(envg$PARAM$dataset_metadata$clase, "clase01"))
 
 dataset[ , clase01 := 
