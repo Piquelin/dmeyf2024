@@ -1,7 +1,7 @@
 # Data Mining en Economía y Finanzas
 #### *Segunda entrega*
 
-##Corrida general del Workflow Baseline
+## Corrida general del Workflow Baseline
 
 Como mis exploraciónes no estaban llegando a buen puerto corté el sabado 
 y retomé modelos que estuvieran circulando y que anduvieran bien.
@@ -11,7 +11,7 @@ Tomé de base el scipt de Alejandro Czernikier que ya tenía implementado
 el tema de incorporar muchos meses y modifiqué algunas cosas:
 https://github.com/alejandro-czernikier/dmeyf2024/blob/main/src/workflows/918_workflow_base_f202108_1_sinmarzoabril_5modelos_tendencia2.r
 
-1. en CA_catastrophe_base agregé lineas a corregir robadas de Joaquin Tschopp
+1. En CA_catastrophe_base agregé lineas a corregir robadas de Joaquin Tschopp
 https://github.com/JoacoTschopp/dmeyf2024/blob/main/src/wf-etapas/1201_CA_reparar_dataset.r
 
 2. FErf_attributes_base cambié arbolitos a 25 y 16 hojas
