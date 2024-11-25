@@ -14,12 +14,13 @@ Después modifiqué algunas cosas:
 [Link al original](https://github.com/JoacoTschopp/dmeyf2024/blob/main/src/wf-etapas/1201_CA_reparar_dataset.r)
 
 2. FErf_attributes_base cambié arbolitos a 25 y 16 hojas
-para que aduviera más rápido en la TS undersamplin 0.02 en train y 0.2 en finaltrain
 
-3. 30 iteraciones de la bayesiana y elegí los tres primeros modelos con 5 semillas
-hubiera usado 20  pero me quedé sin tiempo
 
-4. desde python con el archivo de los scores, hice un promedio de las semillas por modelo y enrtegué ese promedio.
+3. Del TS saqué, además de 202003 y 202004 del experimento de mis compañeros, el 202104, de la bayesiana de zulip de Gustavo. Para que aduviera más rápido en la TS hice un undersampling de 0.02 en train y 0.2 en finaltrain, *casi no llego a la entrega*. 
+
+4. 30 iteraciones de la bayesiana y elegí los tres primeros modelos con 5 semillas hubiera usado 20  pero me quedé sin tiempo
+
+5. desde python con el archivo de los scores, hice un promedio de las semillas por modelo y enrtegué ese promedio.
 
 Elegí para la entrega un buen score del promedio de los tres modelos. 
 
