@@ -211,7 +211,7 @@ FErf_attributes_base <- function( pinputexps,
 
   # Parametros de un LightGBM que se genera para estimar la column importance
   param_local$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
-  param_local$train$training <- c( 202101, 202102, 202103)
+  param_local$train$training <- c( 202103, 202105, 202106)
 
   # parametros para que LightGBM se comporte como Random Forest
   param_local$lgb_param <- list(
@@ -270,7 +270,7 @@ CN_canaritos_asesinos_base <- function( pinputexps, ratio, desvio)
   # Parametros de un LightGBM que se genera para estimar la column importance
   param_local$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
   param_local$train$positivos <- c( "BAJA+2")
-  param_local$train$training <- c( 202101, 202102, 202103)
+  param_local$train$training <- c( 202103, 202105, 202106)
   param_local$train$validation <- c( 202105 )
   param_local$train$undersampling <- 0.1
   param_local$train$gan1 <- 273000
@@ -299,7 +299,7 @@ TS_strategy_base8 <- function( pinputexps )
 
   param_local$future <- c(202109)
 
-  param_local$final_train$undersampling <- 0.2
+  param_local$final_train$undersampling <- 0.1
   param_local$final_train$clase_minoritaria <- c( "BAJA+1", "BAJA+2")
   param_local$final_train$training <- c(202107, 202106, 202105, # 202104,
                                         202103, 202102, 202101,
@@ -459,7 +459,7 @@ KA_evaluate_kaggle <- function( pinputexps )
 # Este es el  Workflow Baseline
 # Que predice 202108 donde NO conozco la clase
 
-wf_agosto_1_sinmarzoabril_5modelos_tendencia2 <- function( pnombrewf )
+c03_copia_editado <- function( pnombrewf )
 {
   param_local <- exp_wf_init( pnombrewf ) # linea workflow inicial fija
 
@@ -473,7 +473,7 @@ wf_agosto_1_sinmarzoabril_5modelos_tendencia2 <- function( pnombrewf )
   FEhist_base()
 
   FErf_attributes_base( arbolitos= 25,
-    hojas_por_arbol= 16,
+    hojas_por_arbol= 12,
     datos_por_hoja= 1000,
     mtry_ratio= 0.2
   )
@@ -496,4 +496,4 @@ wf_agosto_1_sinmarzoabril_5modelos_tendencia2 <- function( pnombrewf )
 # Aqui comienza el programa
 
 # llamo al workflow con future = 202108
-wf_agosto_1_sinmarzoabril_5modelos_tendencia2()
+c03_copia_editado()
