@@ -270,8 +270,9 @@ CN_canaritos_asesinos_base <- function( pinputexps, ratio, desvio)
   # Parametros de un LightGBM que se genera para estimar la column importance
   param_local$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
   param_local$train$positivos <- c( "BAJA+2")
-  git p
-  param_local$train$validation <- c( 202105 )
+  param_local$train$training <- c( 202103, 202105)
+  
+  param_local$train$validation <- c( 202106 )
   param_local$train$undersampling <- 0.1
   param_local$train$gan1 <- 273000
   param_local$train$gan0 <-  -7000
@@ -464,7 +465,7 @@ c03_copia_editado <- function( pnombrewf )
   param_local <- exp_wf_init( pnombrewf ) # linea workflow inicial fija
 
   # Etapa especificacion dataset de la Segunda Competencia Kaggle
-  DT_incorporar_dataset( "~/buckets/b1/datasets/competencia_02.csv.gz")
+  DT_incorporar_dataset( "~/buckets/b1/datasets/competencia_03.csv.gz")
 
   # Etapas preprocesamiento
   CA_catastrophe_base( metodo="MachineLearning")
