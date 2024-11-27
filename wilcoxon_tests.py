@@ -77,42 +77,42 @@ def levanto_cortes():
 def grafico_3m_202106(df_graf, titulo='Pollo-parrillero'):
     # Crear figura y subplots
     fig, axs = plt.subplots(1, 3, sharey=True, figsize=(15, 5))
-    
+
     # Configuración del rango de ejes y formato de unidades
     for ax in axs:
         ax.set_xlim(8000, 16000)
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{int(x / 1e3):,d}K"))  # Separador de miles en eje X
         ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, _: f"{y / 1e6:.0f}M"))  # Millones con 3 decimales en eje Y
-        
-        
+
+
         # Configuración de la grilla
         ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=0.8)
         ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=0.5, alpha=0.5)
         ax.yaxis.set_major_locator(ticker.MultipleLocator(5e6))  # Divisiones mayores cada 5 millones
         ax.yaxis.set_minor_locator(ticker.MultipleLocator(1e6))  # Divisiones menores cada 1 millón
         ax.grid(visible=True, which='major', axis='x', linestyle='--', linewidth=0.8, alpha=0.5)
-    
-    
+
+
     # Primer subplot
     axs[0].plot(df_graf.iloc[:, 0:20], c='grey', alpha=0.5, linewidth=0.5)
     axs[0].plot(df_graf.iloc[:, 61], c='red', alpha=1, linewidth=1)
-    
+
     # Segundo subplot
     axs[1].plot(df_graf.iloc[:, 20:40], c='grey', alpha=0.5, linewidth=0.5)
     axs[1].plot(df_graf.iloc[:, 62], c='red', alpha=1, linewidth=1)
-    
+
     # Tercer subplot
     axs[2].plot(df_graf.iloc[:, 40:60], c='grey', alpha=0.5, linewidth=0.5)
     axs[2].plot(df_graf.iloc[:, 63], c='red', alpha=1, linewidth=1)
-    
+
     fig.suptitle(titulo)
-    
+
     # Ajustes finales
     plt.tight_layout()
     plt.show()
     plt.close()
-    
-    
+
+
 
 def calcular_cortes_y_promedios(basepath, file):
     df_ = pd.read_csv(basepath+file, sep='\t')
@@ -138,12 +138,12 @@ def calcular_cortes_y_promedios(basepath, file):
         del df_prom
     ganancias = pd.concat(lista_series, axis=1, keys=df_.columns[3:])
     return ganancias
-    
+
 
 
 def armo_entregas_desde_probs(df_, modelos=3, semillas=20):
     lista_prob_prom = []
-    
+
     for i in range(modelos):
         df_entrega =  df_[['numero_de_cliente', 'foto_mes', 'clase_ternaria']]
         # df_entrega['numero_de_cliente'] = df_['numero_de_cliente']
@@ -151,24 +151,24 @@ def armo_entregas_desde_probs(df_, modelos=3, semillas=20):
         df_entrega = df_entrega.sort_values('prom', ascending=False).reset_index()
         df_entrega = df_entrega[['numero_de_cliente',  'foto_mes', 'clase_ternaria', 'prom']]
         lista_prob_prom.append(df_entrega)
-    
-    
+
+
     total_clientes =len(lista_prob_prom[0])
     for i in range(modelos):
         for corte in range(8000, 16001, 500):
             array = np.zeros((total_clientes, 1))
             array[:corte] = 1
             lista_prob_prom[i][f'pred_{corte}'] = array.astype(int)
-    
+
     return lista_prob_prom
-            
+
 
 
 def guardo_en_archivos(dfs, experimento):
     # Crear directorio de entregas
     directorio_entregas = f'entregas_{experimento}'
     os.makedirs(directorio_entregas, exist_ok=True)
-    
+
     # Guardar predicciones de cada modelo en archivos CSV
     for modelo, df in enumerate(dfs):
         for col in df.columns:
@@ -176,11 +176,11 @@ def guardo_en_archivos(dfs, experimento):
                 corte = col.split('_')[1]  # Extraer el número del corte
                 df_pred = df[['numero_de_cliente', col]].copy()
                 df_pred.columns = ['numero_de_cliente', 'Predicted']  # Renombrar columnas
-    
+
                 # Nombre de archivo y ruta de guardado
                 archivo_nombre = f"{experimento}_{modelo}_{corte}.csv"
                 archivo_ruta = os.path.join(directorio_entregas, archivo_nombre)
-                
+
                 # Guardar en CSV
                 df_pred.to_csv(archivo_ruta, index=False)
     return None
@@ -218,9 +218,10 @@ print(f' {col1:22} vs {col2:22} p.value: {wil.pvalue:,.10f}')
 
 
 basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/'
-# basepath = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/vm_logs/'
+basepath = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/vm_logs/'
 file='SC-0020_pollo_parrillero_future_prediccion.txt'
 file = 'SC-0024_ipp-bagg-mm-06_future_prediccion.txt'
+file = 'SC/expw_SC-0030_tb_future_prediccion.txt'
 
 
 ganancias = calcular_cortes_y_promedios(basepath, file)
@@ -233,6 +234,7 @@ grafico_3m_202106(df_graf=ganancias.loc[8000:16000], titulo='ipp-bagg-mm')
 
 
 basepath ='C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/vm_logs/'
+basepath = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/vm_logs/'
 file1 = 'SC-0021_pollo_bagg_ka_future_prediccion.txt'
 # file0 = 'SC-0020_pollo_parrillero_future_prediccion.txt'
 file2 = 'SC-0023_pollo_bagg_dart_ka_future_prediccion.txt'
@@ -242,19 +244,24 @@ file4 = 'SC-0026_ipp-bagg-dart-mm_future_prediccion.txt'
 # df0 = pd.read_csv(basepath+file0, sep='\t')
 df1 = pd.read_csv(basepath+file1, sep='\t')
 df2 = pd.read_csv(basepath+file2, sep='\t')
-df3 = pd.read_csv(basepath+file3, sep='\t')    
+df3 = pd.read_csv(basepath+file3, sep='\t')
 df4 = pd.read_csv(basepath+file4, sep='\t')
 
 df_all = pd.concat([df1, df2.iloc[:,3:], df3.iloc[:,3:], df4.iloc[:,3:]], axis=1, )
 
-    
-# lista = armo_entregas_desde_probs(df_, modelos=3, semillas=20)
-lista = armo_entregas_desde_probs(df_all, modelos=1, semillas=240)
+# %%
+
+file = 'SC/expw_SC-0030_tb_future_prediccion.txt'
+file = 'SC/expw_SC-0031_tb_future_prediccion.txt'
+file = 'SC/expw_SC-0034_tb_future_prediccion.txt'
+df_ = pd.read_csv(basepath + file, sep='\t')
+lista = armo_entregas_desde_probs(df_, modelos=3, semillas=15)
+# lista = armo_entregas_desde_probs(df_all, modelos=1, semillas=240)
 
 
 # %%
 
-guardo_en_archivos(lista, experimento='SC-0021-23-25-26_promedio')
+guardo_en_archivos(lista, experimento='SC-0034-base-muchosmeses')
 
 
 
@@ -272,7 +279,7 @@ guardo_en_archivos(lista, experimento='SC-0021-23-25-26_promedio')
 # %%
 
 
-    
+
 
 
 # %%
@@ -314,7 +321,3 @@ df_errores['err'] = np.where(
 )
 
 df_errores[df_errores['err']==1]
-
-
-
-    
