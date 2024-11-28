@@ -42,7 +42,7 @@ base_path = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_
 dataset_path = base_path + 'datasets/'
 modelos_path = base_path + 'modelos/'
 db_path = base_path + 'db/'
-dataset_file = 'competencia_02.parquet'
+dataset_file = 'competencia_03.parquet'
 
 ganancia_acierto = 273000
 costo_estimulo = 7000
@@ -162,6 +162,8 @@ plt.ylabel('Ganancia')
 plt.legend()
 plt.show()
 
+# hasta acá es para descartar lo de baja +2 y +1
+# ahora empieza lo bueno.
 
 # %%
 

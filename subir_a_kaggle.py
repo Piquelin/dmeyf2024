@@ -21,7 +21,7 @@ api.authenticate()
 # defino ruta de los archivos del experimento
 path_exp = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/exp/'
 path_exp = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/exp/'
-competencia = "dm-ey-f-2024-primera"
+competencia = "dm-ey-f-2024-tercera"
 
 # %% Cargo datos a mano porque me a más flexibilidad
 

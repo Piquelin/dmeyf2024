@@ -58,11 +58,11 @@ def guardo_en_archivos(dfs, experimento):
 
 
 basepath = '../exp/vm_logs/'
-file = 'SC/expw_SC-0034_tb_future_prediccion.txt'
+file = 'SC/expw_SC-0035_tb_future_prediccion.txt'
 df_ = pd.read_csv(basepath + file, sep='\t')
-lista = armo_entregas_desde_probs(df_, modelos=1, semillas=15)
+lista = armo_entregas_desde_probs(df_, modelos=3, semillas=5)
 
 
 # %%
 
-guardo_en_archivos(lista, experimento='SC-0034-base-muchosmeses')
+guardo_en_archivos(lista, experimento='SC-0035-entrega2-prom5')

@@ -11,7 +11,9 @@ import gzip
 import pandas as pd
 
 # dataset = pl.read_csv("datasets/competencia_01_crudo.csv", infer_schema_length=10000)
-dataset = pl.read_csv("../datasets/competencia_02_crudo.csv.gz", infer_schema_length=500000)
+# dataset = pl.read_csv("../datasets/competencia_02_crudo.csv.gz", infer_schema_length=500000)
+dataset = pl.read_csv("../datasets/competencia_03_crudo.csv.gz", infer_schema_length=500000)
+
 
 #%% pivoteo
 
@@ -86,12 +88,12 @@ resultado = dataset.join(
 # %% guardo
 
 
-# resultado.write_csv('../datasets/competencia_02.csv', separator=",")
-# resultado.write_parquet("../datasets/competencia_02.parquet")
+# resultado.write_csv('../datasets/competencia_03.csv', separator=",")
+# resultado.write_parquet("../datasets/competencia_03.parquet")
 
-# file_path = "../datasets/competencia_02.csv.gz"
-# with gzip.open(file_path, 'wb') as f:
-#     resultado.lazy().collect().write_csv(f, separator=",")
+file_path = "../datasets/competencia_03.csv.gz"
+with gzip.open(file_path, 'wb') as f:
+    resultado.lazy().collect().write_csv(f, separator=",")
 
 
 # %%
