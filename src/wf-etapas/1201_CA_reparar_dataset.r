@@ -219,6 +219,15 @@ cat( "Finalizada lectura del dataset\n" )
 
 # elimino varaibles 
 
+
+# Verificar si la columna 'clase_ternaria_right' existe antes de eliminarla
+if ("clase_ternaria_right" %in% colnames(dataset)) {
+  dataset$clase_ternaria_right <- NULL
+  cat("Columna 'clase_ternaria_right' eliminada.\n")
+} else {
+  cat("La columna 'clase_ternaria_right' no existe en el dataset.\n")
+}
+
 for( atributo in  envg$PARAM$atributos_eliminar ){
   eliminar_atributo(  atributo )
 }
