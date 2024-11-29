@@ -463,7 +463,7 @@ DC_eliminar_bajas1 <- function( arch_dataset )
 {
   if( -1 == (param_local <- exp_init())$resultado ) return( 0 ) # linea fija
   
-  param_local$meta$script <- "/src/wf-etapas/1150_DT_eliminar_bajas1.r"
+  param_local$meta$script <- "/src/wf-etapas/1150_DC_eliminar_bajas1.r"
   
   param_local$EliminarBajas1$meses <- c(202108, 202107, 202106, 202105, # 202104, 202103,
                                         202102, 202101,
@@ -474,7 +474,8 @@ DC_eliminar_bajas1 <- function( arch_dataset )
   
   param_local$semilla <- NULL  # no usa semilla, es deterministico
   
-  return( exp_correr_script( param_local ) ) # linea fija}
+  return( exp_correr_script( param_local ) ) # linea fija
+}
 
 #------------------------------------------------------------------------------
 # Feature Engineering Intra Mes   Baseline
@@ -490,7 +491,7 @@ FEintra_manual_propio <- function( pinputexps )
     param_local$semilla <- NULL  # no usa semilla, es deterministico
     
     return( exp_correr_script( param_local ) ) # linea fija
-  }
+}
 
   
 #------------------------------------------------------------------------------
