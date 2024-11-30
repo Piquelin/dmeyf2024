@@ -220,17 +220,22 @@ cat( "Finalizada lectura del dataset\n" )
 # elimino varaibles 
 
 
-# Verificar si la columna 'clase_ternaria_right' existe antes de eliminarla
-if ("clase_ternaria_right" %in% colnames(dataset)) {
-  dataset$clase_ternaria_right <- NULL
-  cat("Columna 'clase_ternaria_right' eliminada.\n")
-} else {
-  cat("La columna 'clase_ternaria_right' no existe en el dataset.\n")
+# Agregar las nuevas columnas a la lista de atributos a eliminar
+envg$PARAM$atributos_eliminar <- c(envg$PARAM$atributos_eliminar, 
+                                   "clase_ternaria_right", 
+                                   "m_2_1", 
+                                   "foto_mes_size")
+
+# Elimino las columnas si existen
+for( atributo in envg$PARAM$atributos_eliminar ){
+  if (atributo %in% colnames(dataset)) {
+    dataset[[atributo]] <- NULL
+    cat(paste("Columna", atributo, "eliminada.\n"))
+  } else {
+    cat(paste("Columna", atributo, "no existe en el dataset.\n"))
+  }
 }
 
-for( atributo in  envg$PARAM$atributos_eliminar ){
-  eliminar_atributo(  atributo )
-}
 
 GrabarOutput()
 
