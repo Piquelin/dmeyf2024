@@ -35,7 +35,7 @@ if( !exists("envg") ) envg <- env()  # global environment
 
 envg$EXPENV <- list()
 envg$EXPENV$bucket_dir <- "~/buckets/b1"
-envg$EXPENV$exp_dir <- "~/buckets/b1/expw/"
+envg$EXPENV$exp_dir <- "~/buckets/b1/exp_03/"
 envg$EXPENV$wf_dir <- "~/buckets/b1/flow/"
 envg$EXPENV$repo_dir <- "~/dmeyf2024/"
 envg$EXPENV$datasets_dir <- "~/buckets/b1/datasets/"
@@ -129,7 +129,7 @@ FEintra_manual_base <- function( pinputexps )
   if( -1 == (param_local <- exp_init())$resultado ) return( 0 ) # linea fija
 
 
-  param_local$meta$script <- "/src/wf-etapas/z1301_FE_intrames_manual.r"
+  param_local$meta$script <- "/src/wf-etapas/1301_FE_intrames_manual.r"
 
   param_local$semilla <- NULL  # no usa semilla, es deterministico
 
@@ -477,23 +477,7 @@ DC_eliminar_bajas1 <- function( arch_dataset )
   return( exp_correr_script( param_local ) ) # linea fija
 }
 
-#------------------------------------------------------------------------------
-# Feature Engineering Intra Mes   Baseline
-# deterministico, SIN random
-  
-FEintra_manual_propio <- function( pinputexps )
-{
-    if( -1 == (param_local <- exp_init())$resultado ) return( 0 ) # linea fija
-    
-    
-    param_local$meta$script <- "/src/wf-etapas/1301_FE_intrames_manual_variables_evolutivas_progresivas_competencia2.r"
-    
-    param_local$semilla <- NULL  # no usa semilla, es deterministico
-    
-    return( exp_correr_script( param_local ) ) # linea fija
-}
-
-  
+ 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 # A partir de ahora comienza la seccion de Workflows Completos
@@ -512,7 +496,7 @@ FEintra_manual_propio <- function( pinputexps )
   CA_catastrophe_base( metodo="MachineLearning")
   FEintra_manual_base()
   DR_drifting_base(metodo="rank_cero_fijo")
-  FEintra_manual_propio()
+  # FEintra_manual_propio()
   FEhist_base()
 
   FErf_attributes_base( arbolitos= 25,
