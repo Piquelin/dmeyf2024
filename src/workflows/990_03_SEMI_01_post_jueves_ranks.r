@@ -311,7 +311,6 @@ TS_strategy_base8 <- function( pinputexps )
                                   202006, 202005, 202002, 202001, # 202004, 200203
                                   201912, 201911, 201910, 201909, 201908, 201907,
                                   201906, 201905) #, 201904, 201903, 201902, 201901
-  )
 
 
   # Atencion  0.2  de  undersampling de la clase mayoritaria,  los CONTINUA

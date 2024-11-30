@@ -310,7 +310,7 @@ TS_strategy_base8 <- function( pinputexps )
                                         201905) #, 201904, 201903, 201902, 201901
 
 
-  param_local$train$training <- c( 202106, 202105, # 202104,202103,
+  param_local$train$training <- c( 202105, # 202104,202103,
                                    202102, 202101,
                                    202012, 202011, 202010, 202009, 202008, 202007, 
                                    202006, 202005, 202002, 202001, # 202004, 200203
@@ -322,7 +322,7 @@ TS_strategy_base8 <- function( pinputexps )
 
   # Atencion  0.2  de  undersampling de la clase mayoritaria,  los CONTINUA
   # 1.0 significa NO undersampling
-  param_local$train$undersampling <- 0.02
+  param_local$train$undersampling <- 0.01
   param_local$train$clase_minoritaria <- c( "BAJA+1", "BAJA+2")
 
   return( exp_correr_script( param_local ) ) # linea fija
@@ -526,7 +526,7 @@ FEintra_manual_propio <- function( pinputexps )
 
   # Etapas modelado
   ts8 <- TS_strategy_base8()
-  ht <- HT_tuning_base( bo_iteraciones = 25, bypass=FALSE)  # iteraciones inteligentes
+  ht <- HT_tuning_base( bo_iteraciones = 20, bypass=FALSE)  # iteraciones inteligentes
 
   # Etapas finales
   fm <- FM_final_models_lightgbm( c(ht, ts8), ranks=c(1,2,3), qsemillas=5)
