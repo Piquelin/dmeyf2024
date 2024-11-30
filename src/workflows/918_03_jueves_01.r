@@ -382,8 +382,8 @@ HT_tuning_base <- function( pinputexps, bo_iteraciones, bypass=FALSE)
     # extra_trees = FALSE,
     
     # Parte variable
-    learning_rate = c( 0.02, 0.3 ),
-    feature_fraction = c( 0.5, 0.9 ),
+    learning_rate = c( 0.01, 0.2 ),
+    feature_fraction = c( 0.3, 0.7 ),
     num_leaves = c( 8L, 3048L,  "integer" ),
     min_data_in_leaf = c( 80L, 10000L, "integer" )
   )
