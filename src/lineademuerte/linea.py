@@ -15,7 +15,7 @@ from optuna.trial import Trial
 from datetime import datetime
 
 
-dataset = pl.read_parquet('datasets/competencia_03.parquet').filter(pl.col("foto_mes") > 202012)
+dataset = pl.read_parquet('datasets/competencia_03.parquet')  # .filter(pl.col("foto_mes") > 202012)
 
 dataset = dataset.drop(["tmobile_app", "cmobile_app_trx"])
 

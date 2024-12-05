@@ -15,7 +15,7 @@ Created on Thu Nov 14 15:12:56 2024
 # %pip install optuna==3.6.1
 
 # %%
-
+import polars as pl
 import pandas as pd
 import numpy as np
 # import seaborn as sns
@@ -33,14 +33,16 @@ from optuna.visualization.matplotlib import (plot_optimization_history,
 import os
 import gc
 gc.collect()
-# %% cargo
+# %% cargo parametros
 
 
-base_path = ('E:/Users/Piquelin/Documents/Maestría_DataMining/' +
-             'Economia_y_finanzas/')
-dataset_path = base_path + 'datasets/'
-modelos_path = base_path + 'modelos/'
-db_path = base_path + 'db/'
+# base_path = ('E:/Users/Piquelin/Documents/Maestría_DataMining/' +
+# base_path = ('C:/Users/jfgonzalez/Documents/Documentación_maestría/'+
+#              'Economia_y_finanzas/')
+
+dataset_path = './datasets/'
+modelos_path = './modelos/'
+db_path = './db/'
 dataset_file = 'competencia_03.parquet'
 
 ganancia_acierto = 273000
@@ -50,52 +52,165 @@ mes_train = [202107, 202106, 202105, 202102, 202101, #  202104, 202103,
              202021, 202011, 202010, 202009, 202008, 202007,
              202006, 202105, 202002, 202001, #  202004, 202003,
              201921, 201911, 201910, 201909, 201908, 201907,
-            # 201906, 201905, 201904, 201903, 201902, 201901,
+            201906, 201905, 201904, 201903, 201902, 201901,
              ]
 mes_test = 202109
 
 # agregue sus semillas
 semillas = [17, 19, 23, 29, 31]
 
-data = pd.read_parquet(dataset_path + dataset_file)
-data = data.drop(columns=['tmobile_app', 'cmobile_app_trx'])
+# %%
+
+dataset = pl.read_parquet('datasets/competencia_03.parquet')  # .filter(pl.col("foto_mes") > 202012)
+
+dataset = dataset.drop(["tmobile_app", "cmobile_app_trx"])
+
+# bajas = dataset.group_by(["foto_mes", "clase_ternaria"]).agg(pl.len().alias("conteo")).sort(["foto_mes", "clase_ternaria"]).to_pandas()
+
+# %% drift
+
+
+# Lista de meses y valores de UVA
+vfoto_mes = [
+    201901, 201902, 201903, 201904, 201905, 201906,
+    201907, 201908, 201909, 201910, 201911, 201912,
+    202001, 202002, 202003, 202004, 202005, 202006,
+    202007, 202008, 202009, 202010, 202011, 202012,
+    202101, 202102, 202103, 202104, 202105, 202106,
+    202107, 202108, 202109
+]
+
+vUVA = [
+    2.001408838932958,  1.950325472789153,  1.89323032351521,
+    1.8247220405493787, 1.746027787673673,  1.6871348409529485,
+    1.6361678865622313, 1.5927529755859773, 1.5549162794128493,
+    1.4949100586391746, 1.4197729500774545, 1.3678188186372326,
+    1.3136508617223726, 1.2690535173062818, 1.2381595983200178,
+    1.211656735577568,  1.1770808941405335, 1.1570338657445522,
+    1.1388769475653255, 1.1156993751209352, 1.093638313080772,
+    1.0657171590878205, 1.0362173587708712, 1.0,
+    0.9669867858358365, 0.9323750098728378, 0.8958202912590305,
+    0.8631993702994263, 0.8253893405524657, 0.7928918905364516,
+    0.7666323845128089, 0.7428976357662823, 0.721615762047849
+]
+
+# Crear un DataFrame para los valores de UVA
+uva_df = pl.DataFrame({
+    "foto_mes": vfoto_mes,
+    "UVA": vUVA
+})
+
+# Función para ajustar campos monetarios
+def drift_uva(dataset: pl.DataFrame, campos_monetarios: list[str], uva_df: pl.DataFrame):
+    print("Inicio drift_UVA()")
+    
+    # Unir el dataset con el DataFrame de UVA
+    dataset = dataset.join(uva_df, on="foto_mes", how="left")
+    
+    # Aplicar el ajuste a los campos monetarios
+    for campo in campos_monetarios:
+        dataset = dataset.with_columns((pl.col(campo) * pl.col("UVA")).alias(campo))
+    
+    # Eliminar la columna de UVA si ya no es necesaria
+    dataset = dataset.drop("UVA")
+    
+    print("Fin drift_UVA()")
+    return dataset
+
+
+# Filtrar columnas que correspondan a campos monetarios
+campos_monetarios = [
+    col for col in dataset.columns 
+    if col.startswith(("m", "Visa_m", "Master_m", "vm_m"))
+]
+
+# Ajustar los campos monetarios con la función
+
+# dataset = drift_uva(dataset, campos_monetarios, uva_df)
+
+
+
 
 # %% lag 1
 
+cols_lagueables = dataset.columns[2:-1]
 
-cols_lagueables = data.columns[2:-1]
+# Generar lags para cada columna en cols_lagueables, por grupo (numero_de_cliente)
+lag = 1
+lagged_columns = [
+    (pl.col(col).shift(lag).over("numero_de_cliente").alias(f"{col}_lag{lag}"))
+    for col in cols_lagueables
+]
+dataset = dataset.with_columns(lagged_columns)
 
-lag=1
+# %% lag 2
 
-# Generar las columnas con lags
-for col in tqdm(cols_lagueables):
-    data[f"{col}_lag{lag}"] = (
-        data.groupby("numero_de_cliente")[col].shift(lag))
-lag=2
+lag = 2
+lagged_columns = [
+    (pl.col(col).shift(lag).over("numero_de_cliente").alias(f"{col}_lag{lag}"))
+    for col in cols_lagueables
+]
+dataset = dataset.with_columns(lagged_columns)
 
-# Generar las columnas con lags
-for col in tqdm(cols_lagueables):
-    data[f"{col}_lag{lag}"] = (
-        data.groupby("numero_de_cliente")[col].shift(lag))
+# %% delta lag
+
+# Calcular los delta lags
+for col in cols_lagueables:
+    dataset = dataset.with_columns([
+        (pl.col(f'{col}') - pl.col(f"{col}_lag1")).alias(f"{col}_delta1"),
+        (pl.col(f'{col}') - pl.col(f"{col}_lag2")).alias(f"{col}_delta2")
+    ])
+
+
+
+# %% Crear clase y pesos
+
+dataset = dataset.with_columns(
+    pl.when(pl.col("clase_ternaria") == "BAJA+2").then(1.00002)
+    .when(pl.col("clase_ternaria") == "BAJA+1").then(1.00001)
+    .otherwise(1.0)
+    .alias("clase_peso")
+)
+
+
+# Crear columnas binarias
+dataset = dataset.with_columns([
+    (pl.col("clase_ternaria") == "BAJA+2").cast(int).alias("clase_binaria1"),
+    (pl.col("clase_ternaria") != "CONTINUA").cast(int).alias("clase_binaria2"),
+])
+# %%
+
+dataset.write_parquet("datasets/competencia_03_prepro.parquet")
+
+dataset = pl.read_parquet('datasets/competencia_03_prepro.parquet')
+
 
 # %% undersampleo
 
-data["azar"] = np.random.uniform(size=len(data))
 
-data = data[~((data["azar"] > 0.02)
-              & (data["clase_ternaria"] == "CONTINUA")
-              & (data["foto_mes"].isin(mes_train)))]
+print(dataset['clase_ternaria'].value_counts())
+print('Undersampleo')
 
-data = data.drop(columns=['azar'])
+# Agregar una columna 'azar' con valores aleatorios uniformes
+dataset = dataset.with_columns(pl.lit(np.random.uniform(size=dataset.shape[0])).alias("azar"))
 
-print(data.clase_ternaria.value_counts())
+# Filtrar las filas según las condiciones
+dataset = dataset.filter(
+    ~(
+        (pl.col("azar") > 0.5) &
+        (pl.col("clase_ternaria") == "CONTINUA") &
+        (pl.col("foto_mes").is_in(mes_train))
+    )
+)
 
-# %% divido train y test
+# Eliminar la columna 'azar'
+dataset = dataset.drop("azar")
 
-train_data = data[data['foto_mes'].isin(mes_train)]
-
-train_data = data[data['foto_mes'].isin(mes_train)]
-test_data = data[data['foto_mes'] == mes_test]
+print(dataset['clase_ternaria'].value_counts())
+# %% Dividir en train y test
+train_data = dataset.filter(pl.col("foto_mes").is_in(mes_train)).to_pandas()
+test_data = dataset.filter(pl.col("foto_mes") == mes_test).to_pandas()
+train_data = train_data[train_data['clase_ternaria']!='BAJA+1']
 
 X_train = train_data.drop(['clase_ternaria', 'clase_peso',
                            'clase_binaria1', 'clase_binaria2'], axis=1)
@@ -110,20 +225,7 @@ y_test_class = test_data['clase_ternaria']
 w_test = test_data['clase_peso']
 
 
-# %% creo clase y pesos
-
-data['clase_peso'] = 1.0
-
-data.loc[data['clase_ternaria'] == 'BAJA+2', 'clase_peso'] = 1.00002
-data.loc[data['clase_ternaria'] == 'BAJA+1', 'clase_peso'] = 1.00001
-
-data['clase_binaria1'] = 0
-data['clase_binaria2'] = 0
-data['clase_binaria1'] = np.where(data['clase_ternaria'] == 'BAJA+2', 1, 0)
-data['clase_binaria2'] = np.where(data['clase_ternaria'] == 'CONTINUA', 0, 1)
-
-
-print(data.clase_ternaria.value_counts())
+del dataset
 # %% modelo
 
 
@@ -133,15 +235,15 @@ def lgb_gan_eval(y_pred, data):
     ganancia = ganancia[np.argsort(y_pred)[::-1]]
     ganancia = np.cumsum(ganancia)
 
-    return 'gan_eval', np.max(ganancia)/len(mes_train) , True
+    return 'gan_eval', round(((np.max(ganancia)/len(mes_train))/1000000),3) , True
 
 def objective(trial):
 
     num_leaves = trial.suggest_int('num_leaves', 8, 1000),
     learning_rate = trial.suggest_float('learning_rate', 0.005, 0.3), # mas bajo, más iteraciones necesita
     min_data_in_leaf = trial.suggest_int('min_data_in_leaf', 500, 1000),
-    feature_fraction = trial.suggest_float('feature_fraction', 0.1, 1.0),
-    bagging_fraction = trial.suggest_float('bagging_fraction', 0.1, 1.0),
+    feature_fraction = trial.suggest_float('feature_fraction', 0.1, 0.6),
+    bagging_fraction = trial.suggest_float('bagging_fraction', 0.1, 0.5),
 
     params = {
         'objective': 'binary',
@@ -165,7 +267,7 @@ def objective(trial):
     cv_results = lgb.cv(
         params,
         train_data,
-        num_boost_round=1000, # modificar, subit y subir... y descomentar la línea inferior
+        num_boost_round=2000, # modificar, subit y subir... y descomentar la línea inferior
         callbacks=[lgb.early_stopping(stopping_rounds=50),],
         # early_stopping_rounds= 50, # int(50 + 5 / learning_rate),
         feval=lgb_gan_eval,
@@ -185,7 +287,7 @@ def objective(trial):
 # %% creo estudio
 
 storage_name = "sqlite:///" + db_path + "optimization_lgbm.db"
-study_name = 'exp_314_lgbm'
+study_name = 'exp_319_lgbm'
 
 study = optuna.create_study(
     direction="maximize",
@@ -258,10 +360,10 @@ model = lgb.train(params,
                   train_data,
                   num_boost_round=best_iter)
 
-# %%
+# # %%
 
-lgb.plot_importance(model, figsize=(10, 20))
-plt.show()
+# lgb.plot_importance(model, figsize=(10, 20))
+# plt.show()
 
 # %%
 
@@ -274,9 +376,9 @@ importance_df[importance_df['importance'] > 0]
 
 # %%
 
-model.save_model('modelos/lgb_27_lag1y2.txt')
+model.save_model('modelos/lgb_27.0.5_sin1_lag1y2_del.txt')
 
-model = lgb.Booster(model_file='./modelos/lgb_27_lag1y2.txt')
+model = lgb.Booster(model_file='./modelos/lgb_27.0.5_sin1_lag1y2_del.txt')
 
 # %%
 
@@ -343,7 +445,7 @@ lista = armo_entregas_desde_probs(y_pred, modelos=1, semillas=1)
 # %%
 import os
 
-guardo_en_archivos(l_nuevo, experimento='c03_local_L1y2')
+guardo_en_archivos(lista, experimento='c03_local_27.0.5_sin1_LD1y2')
 
 
 
@@ -363,7 +465,7 @@ nuevo = pd.concat([lista[0].prom, lista[1].prom], axis=1)
 l_nuevo = armo_entregas_desde_probs(df_, modelos=1, semillas=2)
 
 
-
+guardo_en_archivos(l_nuevo, experimento='c03_local_27_LD1y2_y_SC0035')
 
 # %%
 

@@ -89,14 +89,15 @@ resultado = dataset.join(
 
 
 # resultado.write_csv('../datasets/competencia_03.csv', separator=",")
-# resultado.write_parquet("../datasets/competencia_03.parquet")
+resultado.write_parquet("../datasets/competencia_03.parquet")
 
 file_path = "../datasets/competencia_03.csv.gz"
 with gzip.open(file_path, 'wb') as f:
     resultado.lazy().collect().write_csv(f, separator=",")
 
 
-# %%
+# %% clases_por_mes
+
 clases_por_mes = []
 for ev_mes in tabla_bool.columns[-meses_completos:]:
     valores = tabla_bool[ev_mes].value_counts().to_pandas()
