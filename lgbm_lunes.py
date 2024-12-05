@@ -38,7 +38,8 @@ import pickle
 #%%
 
 
-base_path = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/'
+# base_path = 'C:/Users/jfgonzalez/Documents/Documentación_maestría/Economía_y_finanzas/'
+base_path = 'E:/Users/Piquelin/Documents/Maestría_DataMining/Economia_y_finanzas/'
 dataset_path = base_path + 'datasets/'
 modelos_path = base_path + 'modelos/'
 db_path = base_path + 'db/'
@@ -47,8 +48,8 @@ dataset_file = 'competencia_03.parquet'
 ganancia_acierto = 273000
 costo_estimulo = 7000
 
-mes_train = 202104
-mes_test = 202106
+mes_train = 202105
+mes_test = 202107
 
 # agregue sus semillas
 semillas = [17,19,23,29,31]
